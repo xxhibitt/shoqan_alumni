@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  ALUMNI
+  ADMIN
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(STUDENT)
+  isVerified   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  profile      Profile?
+}
+
+model Profile {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Basic Info
+  firstName          String
+  lastName           String
+  avatarUrl          String?
+  bio                String?
+  
+  // Networking
+  socialLinks        Json?    // e.g., { "insta": "...", "tg": "...", "linkedin": "..." }
+  openToMentoring    Boolean  @default(false)
+  
+  // Academic
+  gradYear           Int?
+  countryOfStudy     String?
+  university         String?
+  major              String?
+  
+  // Stats
+  gpa                Float?
+  satScore           Int?
+  ieltsScore         Float?
+  financialAidStatus String?  // e.g., "Full Ride", "Partial", "Self-funded"
+  
+  // Extracurriculars
+  activities         Json?    // e.g., ["Model UN", "Debates", "Internship"]
+  achievements       Json?
+}
