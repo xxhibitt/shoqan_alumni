@@ -1,9 +1,7 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -11,26 +9,35 @@ export const authOptions: NextAuthOptions = {
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email", placeholder: "admin@shoqanalumni.com" },
-        password: { label: "Password", type: "password" }
+        otp: { label: "OTP", type: "text" }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Missing email or password");
+        console.log("OTP Login Attempt for:", credentials?.email);
+        
+        if (!credentials?.email || !credentials?.otp) {
+          throw new Error("Missing email or OTP");
         }
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
 
-        if (!user) {
-          throw new Error("User not found");
+        console.log("User found in DB for OTP Check:", !!user);
+        console.log("Starting OTP validity compare...");
+
+        if (!user || user.otpCode !== credentials.otp) {
+          throw new Error("Invalid or missing OTP code");
         }
 
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.passwordHash);
-
-        if (!isPasswordValid) {
-          throw new Error("Invalid password");
+        if (user.otpExpires && new Date() > user.otpExpires) {
+          throw new Error("OTP has expired");
         }
+
+        // Validate and destroy OTP
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { otpCode: null, otpExpires: null }
+        });
 
         return {
           id: user.id,
@@ -65,6 +72,7 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET || "development-secret-override",
+  debug: true,
 };
 
 const handler = NextAuth(authOptions);
