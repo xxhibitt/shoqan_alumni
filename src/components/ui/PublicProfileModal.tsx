@@ -8,7 +8,7 @@ import { AvatarImage, BannerImage } from "@/components/ui/FeedGrid";
 import { div } from "framer-motion/client";
 
 export function PublicProfileModal() {
-  const { selectedProfile, setSelectedProfile } = useDashboard();
+  const { selectedProfile, setSelectedProfile, showToast } = useDashboard();
   const [isAdmin, setIsAdmin] = React.useState(false);
   const [isBookmarked, setIsBookmarked] = React.useState(false);
   const [connectionStatus, setConnectionStatus] = React.useState<string | null>(null);
@@ -105,6 +105,7 @@ export function PublicProfileModal() {
       });
       if (res.ok) {
         setConnectionStatus("PENDING");
+        showToast("Request sent!");
       }
     } catch (e) {
       console.error(e);

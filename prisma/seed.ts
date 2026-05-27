@@ -18,6 +18,20 @@ async function main() {
 
   console.log("Generating dummy data...")
 
+  const banners = [
+    "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1000&q=80"
+  ];
+
+  const postImages = [
+    "https://images.unsplash.com/photo-1515169067868-5387ec356754?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1000&q=80"
+  ];
+
   // Create explicit tags and universities
   const uni = await prisma.university.upsert({
     where: { name: "Nazarbayev University" },
@@ -29,6 +43,9 @@ async function main() {
   const users = []
   for (let i = 0; i < 10; i++) {
     const email = `test${i}@nazarbayev.edu`;
+    const avatarUrl = `https://i.pravatar.cc/150?u=${encodeURIComponent(email)}`;
+    const bannerUrl = banners[i % banners.length];
+
     const user = await prisma.user.upsert({
       where: { email },
       update: {},
@@ -42,8 +59,8 @@ async function main() {
             firstName: i % 2 === 0 ? "Alikhan" : "Aruzhan",
             lastName: i % 2 === 0 ? "Smailov" : "Kalykova",
             bio: `I am a driven individual interested in tech and community. Passions include software engineering and making an impact. #${i}`,
-            avatarUrl: `https://images.unsplash.com/photo-${1500000000000 + i}?auto=format&fit=crop&q=80&w=200`,
-            bannerUrl: `https://images.unsplash.com/photo-${1600000000000 + i}?auto=format&fit=crop&q=80&w=800`,
+            avatarUrl,
+            bannerUrl,
             universityId: uni.id,
             socialLinks: {
               tg: i % 2 === 0 ? "alikhan_tg" : "aruzhan_tg"
@@ -81,9 +98,10 @@ async function main() {
     await prisma.post.create({
       data: {
         title: `Important Announcement ${i + 1}`,
-        content: `We are excited to announce our upcoming networking event in Astana. Please RSVP and connect with fellow alumni!`,
+        content: `We are excited to announce our upcoming networking event in Astana. Please RSVP and connect with fellow alumni! This is a great opportunity to expand your professional network.`,
         type: "ANNOUNCEMENT",
         authorId: admin.id,
+        imageUrl: postImages[i % postImages.length],
         tags: {
           connectOrCreate: [
             { where: { name: "Event" }, create: { name: "Event" } }
@@ -93,7 +111,7 @@ async function main() {
     });
   }
 
-  console.log("Database seeded successfully with realistic data!")
+  console.log("Database seeded successfully with realistic premium data!")
 }
 
 main()
