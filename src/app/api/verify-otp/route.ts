@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import nodemailer from "nodemailer";
 
 export async function POST(req: Request) {
   try {
@@ -33,8 +34,9 @@ export async function POST(req: Request) {
     // Generate 6-digit OTP
     const otpCode = String(Math.floor(100000 + Math.random() * 900000));
     console.log("\n=========================================");
-    console.log("🔥 ТВОЙ КОД ДЛЯ ВХОДА:", otpCode);
+    console.log("🔥 OTP GENERATED:", otpCode);
     console.log("=========================================\n");
+    
     // Expires in 10 minutes
     const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
@@ -46,8 +48,41 @@ export async function POST(req: Request) {
       },
     });
 
-    // DEV MODE simulation (in real life, send via email service like Resend)
-    console.log(`\n\n[DEV MODE 2FA OTP for ${email}]: ${otpCode}\n\n`);
+    // Setup Nodemailer transporter
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_SERVER_USER,
+        pass: process.env.EMAIL_SERVER_PASSWORD,
+      },
+    });
+
+    // Send the email
+    try {
+      await transporter.sendMail({
+        from: `"Shoqan Alumni" <${process.env.EMAIL_SERVER_USER}>`,
+        to: email,
+        subject: "Your Shoqan Alumni Verification Code",
+        text: `Your verification code is: ${otpCode}\n\nThis code expires in 10 minutes.`,
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            <h2 style="color: #333;">Welcome back!</h2>
+            <p style="color: #555; font-size: 16px;">Here is your verification code to access Shoqan Alumni:</p>
+            <div style="background: #f4f4f4; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; border-radius: 5px; margin: 20px 0;">
+              ${otpCode}
+            </div>
+            <p style="color: #888; font-size: 14px;">This code will expire in 10 minutes. If you did not request this, please ignore this email.</p>
+          </div>
+        `,
+      });
+      console.log(`[Email Sent] OTP successfully delivered to ${email}.`);
+    } catch (emailError: any) {
+      console.error("Failed to send OTP email:", emailError);
+      return NextResponse.json(
+        { error: "Failed to send verification email" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ success: true }, { status: 200 });
 

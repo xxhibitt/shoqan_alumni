@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import fs from "fs/promises";
-import path from "path";
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export async function POST(req: Request) {
   try {
@@ -20,22 +25,21 @@ export async function POST(req: Request) {
 
     const buffer = Buffer.from(await file.arrayBuffer());
     
-    // Create unique filename
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const filename = file.name.replace(/[^a-zA-Z0-9.\-_]/g, ""); // basic sanitize
-    const finalFilename = `${uniqueSuffix}-${filename}`;
-
-    const uploadsDir = path.join(process.cwd(), "public/uploads");
-    
-    // Ensure directory exists
-    await fs.mkdir(uploadsDir, { recursive: true });
-
-    const filePath = path.join(uploadsDir, finalFilename);
-    await fs.writeFile(filePath, buffer);
+    const uploadResult = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        { folder: "shoqan_alumni_uploads" },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result);
+        }
+      );
+      
+      uploadStream.end(buffer);
+    });
 
     return NextResponse.json({ 
       success: true, 
-      url: `/uploads/${finalFilename}` 
+      url: (uploadResult as any).secure_url 
     });
 
   } catch (error) {
