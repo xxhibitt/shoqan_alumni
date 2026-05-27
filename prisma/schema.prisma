@@ -13,6 +13,14 @@ enum Role {
   ADMIN
 }
 
+enum ConnectionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
@@ -21,9 +29,49 @@ model User {
   isVerified   Boolean  @default(false)
   otpCode      String?
   otpExpires   DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  profile      Profile?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  profile        Profile?
+  posts          Post[]         @relation("UserPosts")
+  savedProfiles  SavedProfile[] @relation("UserSavedProfiles")
+  savedPosts     SavedPost[]    @relation("UserSavedPosts")
+  sentConnections     ConnectionRequest[] @relation("SentConnections")
+  receivedConnections ConnectionRequest[] @relation("ReceivedConnections")
+}
+
+model University {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  logoUrl  String?
+  country  String?
+  location String?
+  profiles Profile[]
+}
+
+model Tag {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  profiles Profile[] @relation("ProfileTags")
+  posts    Post[]    @relation("PostTags")
+}
+
+model AcademicData {
+  id            String  @id @default(uuid())
+  profileId     String  @unique
+  profile       Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  satScore      Int?
+  ieltsScore    Float?
+  gpa           Float?
+  intendedMajor String?
+}
+
+model AlumniData {
+  id             String  @id @default(uuid())
+  profileId      String  @unique
+  profile        Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  currentCompany String?
+  jobTitle       String?
+  isMentoring    Boolean @default(false)
 }
 
 model Profile {
@@ -35,25 +83,76 @@ model Profile {
   firstName          String
   lastName           String
   avatarUrl          String?
+  bannerUrl          String?
   bio                String?
   
   // Networking
   socialLinks        Json?    // e.g., { "insta": "...", "tg": "...", "linkedin": "..." }
-  openToMentoring    Boolean  @default(false)
   
-  // Academic
+  // Academic & Alumni Fields
   gradYear           Int?
-  countryOfStudy     String?
-  university         String?
-  major              String?
-  
-  // Stats
-  gpa                Float?
-  satScore           Int?
-  ieltsScore         Float?
+  universityId       String?
+  university         University? @relation(fields: [universityId], references: [id], onDelete: SetNull)
+  academicData       AcademicData?
+  alumniData         AlumniData?
+
   financialAidStatus String?  // e.g., "Full Ride", "Partial", "Self-funded"
   
-  // Extracurriculars
-  activities         Json?    // e.g., ["Model UN", "Debates", "Internship"]
+  // Extracurriculars / Achievements
   achievements       Json?
+  
+  // Relations
+  tags               Tag[]              @relation("ProfileTags")
+  savedBy            SavedProfile[]     @relation("ProfileSavedBy")
+}
+
+model Post {
+  id          String      @id @default(uuid())
+  title       String
+  content     String      @db.Text
+  imageUrl    String?
+  type        String      // e.g. "internship", "olympiad", "announcement"
+  authorId    String
+  author      User        @relation("UserPosts", fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  tags        Tag[]       @relation("PostTags")
+  savedBy     SavedPost[]
+}
+
+model SavedProfile {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation("UserSavedProfiles", fields: [userId], references: [id], onDelete: Cascade)
+  savedProfileId  String
+  profile         Profile  @relation("ProfileSavedBy", fields: [savedProfileId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+
+  @@unique([userId, savedProfileId])
+}
+
+model SavedPost {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation("UserSavedPosts", fields: [userId], references: [id], onDelete: Cascade)
+  postId      String
+  post        Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@unique([userId, postId])
+}
+
+model ConnectionRequest {
+  id         String           @id @default(uuid())
+  senderId   String
+  receiverId String
+  status     ConnectionStatus @default(PENDING)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  sender     User             @relation("SentConnections", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User             @relation("ReceivedConnections", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
 }

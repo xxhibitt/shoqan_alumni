@@ -1,221 +1,107 @@
-import { PrismaClient, Role } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { PrismaClient } from '@prisma/client'
+const prisma = new PrismaClient()
 
 async function main() {
-  console.log('Seeding database...');
+  console.log("Cleaning database...")
   
-  // Clear existing data
-  await prisma.profile.deleteMany();
-  await prisma.user.deleteMany();
+  // Clean all models, ensuring correct camelCase and pluralization for Prisma's generated methods
+  try { await prisma.connectionRequest.deleteMany() } catch (e) {}
+  try { await prisma.savedPost.deleteMany() } catch (e) {}
+  try { await prisma.savedProfile.deleteMany() } catch (e) {}
+  try { await prisma.post.deleteMany() } catch (e) {}
+  try { await prisma.alumniData.deleteMany() } catch (e) {}
+  try { await prisma.academicData.deleteMany() } catch (e) {}
+  try { await prisma.tag.deleteMany() } catch (e) {}
+  try { await prisma.university.deleteMany() } catch (e) {}
+  try { await prisma.profile.deleteMany() } catch (e) {}
+  try { await prisma.user.deleteMany() } catch (e) {}
 
-  // 1 ADMIN User
-  await prisma.user.create({
-    data: {
-      email: 'admin@shoqanalumni.com',
-      passwordHash: 'hashed_password_placeholder',
-      role: Role.ADMIN,
-      isVerified: true,
-      profile: {
-        create: {
-          firstName: 'Admin',
-          lastName: 'Superuser',
-          bio: 'System Administrator for Shoqan Alumni Platform.',
-          openToMentoring: false,
-        }
-      }
-    }
-  });
+  console.log("Generating dummy data...")
 
-  // 2 STUDENT Users
-  await prisma.user.create({
-    data: {
-      email: 'student1@example.com',
-      passwordHash: 'hashed_password_placeholder',
-      role: Role.STUDENT,
-      isVerified: true,
-      profile: {
-        create: {
-          firstName: 'Alikhan',
-          lastName: 'Smailov',
-          bio: 'High school senior looking for mentorship in engineering.',
-          openToMentoring: false,
-          activities: ['Math Olympiad', 'Robotics Club'],
-        }
-      }
-    }
-  });
+  // Create explicit tags and universities
+  const uni = await prisma.university.upsert({
+    where: { name: "Nazarbayev University" },
+    update: {},
+    create: { name: "Nazarbayev University", country: "Kazakhstan" }
+  })
 
-  await prisma.user.create({
-    data: {
-      email: 'student2@example.com',
-      passwordHash: 'hashed_password_placeholder',
-      role: Role.STUDENT,
-      isVerified: false,
-      profile: {
-        create: {
-          firstName: 'Aruzhan',
-          lastName: 'Kalykova',
-          bio: 'Aspiring medical student, currently in 11th grade.',
-          openToMentoring: false,
-          activities: ['Biology Club', 'Debates'],
-        }
-      }
-    }
-  });
-
-  // 7 ALUMNI Users
-  const alumniData = [
-    {
-      email: 'alumni.harvard@example.com',
-      first: 'Dias',
-      last: 'Nugmanov',
-      uni: 'Harvard University',
-      major: 'Computer Science',
-      country: 'USA',
-      gpa: 4.0,
-      sat: 1550,
-      ielts: 8.5,
-      aid: 'Full Ride',
-      gradYear: 2023,
-      act: ['Model UN', 'Hackathons', 'Student Council'],
-      ach: { awards: ['National Math Olympiad Gold'] },
-      links: { linkedin: "https://linkedin.com/in/dias" }
-    },
-    {
-      email: 'alumni.mit@example.com',
-      first: 'Madiyar',
-      last: 'Bekbolat',
-      uni: 'MIT',
-      major: 'Mechanical Engineering',
-      country: 'USA',
-      gpa: 3.9,
-      sat: 1530,
-      ielts: 8.0,
-      aid: 'Partial',
-      gradYear: 2022,
-      act: ['Robotics', 'Physics Olympiad'],
-      ach: { projects: ['Autonomous Drone'] },
-      links: { tg: "@madiyar_b" }
-    },
-    {
-      email: 'alumni.nus@example.com',
-      first: 'Zarina',
-      last: 'Omarova',
-      uni: 'National University of Singapore (NUS)',
-      major: 'Economics',
-      country: 'Singapore',
-      gpa: 3.8,
-      sat: 1480,
-      ielts: 7.5,
-      aid: 'Full Ride (ASEAN Scholarship)',
-      gradYear: 2024,
-      act: ['Debates', 'Economics Society'],
-      ach: { awards: ['Best Delegate MUN'] },
-      links: { insta: "@zari_omar" }
-    },
-    {
-      email: 'alumni.ucl@example.com',
-      first: 'Amina',
-      last: 'Tolegen',
-      uni: 'UCL (University College London)',
-      major: 'Law',
-      country: 'UK',
-      gpa: 3.7,
-      ielts: 8.0,
-      aid: 'Self-funded',
-      gradYear: 2025,
-      act: ['Internship at Law Firm', 'Debates'],
-      ach: { awards: ['Moot Court Finalist'] },
-      links: { linkedin: "https://linkedin.com/in/amina_t" }
-    },
-    {
-      email: 'alumni.kaist@example.com',
-      first: 'Nurasyl',
-      last: 'Kanat',
-      uni: 'KAIST',
-      major: 'Electrical Engineering',
-      country: 'South Korea',
-      gpa: 3.85,
-      sat: 1500,
-      ielts: 7.5,
-      aid: 'Full Ride',
-      gradYear: 2023,
-      act: ['Korean Language Club', 'Tech Internship'],
-      ach: { projects: ['Smart Home IoT'] },
-      links: { "github": "https://github.com/nurasyl" }
-    },
-    {
-      email: 'alumni.stanford@example.com',
-      first: 'Dariga',
-      last: 'Ermekova',
-      uni: 'Stanford University',
-      major: 'Biology',
-      country: 'USA',
-      gpa: 4.0,
-      sat: 1580,
-      ielts: 8.5,
-      aid: 'Full Ride',
-      gradYear: 2021,
-      act: ['Volunteering', 'Research Assistant'],
-      ach: { publications: ['Nature Genetics Co-Author'] },
-      links: { linkedin: "https://linkedin.com/in/dariga" }
-    },
-    {
-      email: 'alumni.nu@example.com',
-      first: 'Sanzhar',
-      last: 'Bolatov',
-      uni: 'Nazarbayev University',
-      major: 'Data Science',
-      country: 'Kazakhstan',
-      gpa: 3.6,
-      ielts: 7.0,
-      aid: 'State Grant',
-      gradYear: 2026,
-      act: ['Chess Club', 'Hackathons'],
-      ach: { Hackathons: ['NU Hackathon Winner'] },
-      links: { tg: "@SanzharData" }
-    }
-  ];
-
-  for (const al of alumniData) {
-    await prisma.user.create({
-      data: {
-        email: al.email,
-        passwordHash: 'hashed_password_placeholder',
-        role: Role.ALUMNI,
+  // Generate 10 Users & Profiles
+  const users = []
+  for (let i = 0; i < 10; i++) {
+    const email = `test${i}@nazarbayev.edu`;
+    const user = await prisma.user.upsert({
+      where: { email },
+      update: {},
+      create: {
+        email,
+        passwordHash: "password123", // Adjusted to passwordHash as per schema
+        role: i === 0 ? "ADMIN" : (i % 3 === 0 ? "ALUMNI" : "STUDENT"),
         isVerified: true,
         profile: {
           create: {
-            firstName: al.first,
-            lastName: al.last,
-            bio: `Alumni studying ${al.major} at ${al.uni}.`,
-            openToMentoring: true,
-            university: al.uni,
-            major: al.major,
-            countryOfStudy: al.country,
-            gpa: al.gpa,
-            satScore: al.sat,
-            ieltsScore: al.ielts,
-            financialAidStatus: al.aid,
-            gradYear: al.gradYear,
-            activities: al.act,
-            achievements: al.ach,
-            socialLinks: al.links,
+            firstName: i % 2 === 0 ? "Alikhan" : "Aruzhan",
+            lastName: i % 2 === 0 ? "Smailov" : "Kalykova",
+            bio: `I am a driven individual interested in tech and community. Passions include software engineering and making an impact. #${i}`,
+            avatarUrl: `https://images.unsplash.com/photo-${1500000000000 + i}?auto=format&fit=crop&q=80&w=200`,
+            bannerUrl: `https://images.unsplash.com/photo-${1600000000000 + i}?auto=format&fit=crop&q=80&w=800`,
+            universityId: uni.id,
+            socialLinks: {
+              tg: i % 2 === 0 ? "alikhan_tg" : "aruzhan_tg"
+            },
+            tags: {
+              connectOrCreate: [
+                { where: { name: "SoftwareEngineering" }, create: { name: "SoftwareEngineering" } },
+                { where: { name: "MUN" }, create: { name: "MUN" } }
+              ]
+            },
+            academicData: i % 3 !== 0 ? {
+              create: {
+                satScore: 1500 + i,
+                ieltsScore: 7.5,
+                intendedMajor: "Computer Science"
+              }
+            } : undefined,
+            alumniData: i % 3 === 0 ? {
+              create: {
+                jobTitle: "Software Engineer at Google",
+                currentCompany: "Google",
+                isMentoring: true
+              }
+            } : undefined
           }
+        }
+      }
+    });
+    users.push(user);
+  }
+
+  // Generate Posts
+  const admin = users[0];
+  for (let i = 0; i < 5; i++) {
+    await prisma.post.create({
+      data: {
+        title: `Important Announcement ${i + 1}`,
+        content: `We are excited to announce our upcoming networking event in Astana. Please RSVP and connect with fellow alumni!`,
+        type: "ANNOUNCEMENT",
+        authorId: admin.id,
+        tags: {
+          connectOrCreate: [
+            { where: { name: "Event" }, create: { name: "Event" } }
+          ]
         }
       }
     });
   }
 
-  console.log('Seeding complete! 1 ADMIN, 2 STUDENTs, and 7 ALUMNI users created.');
+  console.log("Database seeded successfully with realistic data!")
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
+  .then(async () => {
+    await prisma.$disconnect()
   })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  .catch(async (e) => {
+    console.error("Seed error:", e)
+    await prisma.$disconnect()
+    process.exit(1)
+  })

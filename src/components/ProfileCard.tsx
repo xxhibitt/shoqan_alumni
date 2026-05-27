@@ -31,7 +31,7 @@ type ProfileCardProps = {
 export function ProfileCard({ profile, index }: ProfileCardProps) {
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.4, delay: index * 0.1, ease: "easeOut" } },
+    show: { opacity: 1, y: 0, transition: { duration: 0.4, delay: index * 0.1 } },
   };
 
   const hasStats = profile.gpa || profile.satScore || profile.ieltsScore || profile.financialAidStatus;

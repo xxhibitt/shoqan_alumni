@@ -5,7 +5,8 @@ WORKDIR /app
 # We install dependencies if package.json exists.
 # For local development with volume mounts, this ensures node_modules are built for the linux container.
 COPY package.json package-lock.json* ./
-RUN if [ -f package.json ]; then npm install; fi
+COPY prisma ./prisma/
+RUN if [ -f package.json ]; then npm install --legacy-peer-deps; fi
 
 # Expose port
 EXPOSE 3000

@@ -107,7 +107,7 @@ export function FeedGrid({ alumni }: FeedGridProps) {
       if (sortBy === "Newest Graduates") {
         const yearA = a.gradYear || 0;
         const yearB = b.gradYear || 0;
-        return yearB - yearA; 
+        return yearB - yearA;
       }
       if (sortBy === "Highest GPA") {
         const gpaA = a.gpa || 0;
@@ -124,7 +124,7 @@ export function FeedGrid({ alumni }: FeedGridProps) {
 
     return result;
   }, [
-    alumni, searchQuery, showSocialLinks, showMentorsOnly, 
+    alumni, searchQuery, showSocialLinks, showMentorsOnly,
     minGpa, minSat, minIelts, selectedCountry, aidStatus, sortBy, fuse
   ]);
 
@@ -183,7 +183,7 @@ export function FeedGrid({ alumni }: FeedGridProps) {
 
       {/* Advanced Filter UI Row */}
       <div className="flex flex-wrap items-center gap-3 pb-4 border-b border-white/5">
-        
+
         {/* GPA */}
         <div className="relative">
           <select

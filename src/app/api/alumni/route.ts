@@ -20,28 +20,30 @@ export async function GET() {
             avatarUrl: true,
             bio: true,
             university: true,
-            major: true,
-            countryOfStudy: true,
-            gpa: true,
-            satScore: true,
-            ieltsScore: true,
             financialAidStatus: true,
             gradYear: true,
-            activities: true,
             achievements: true,
             socialLinks: true,
-            openToMentoring: true
+            academicData: true,
+            alumniData: true,
+            tags: true
           }
         }
       }
     });
 
-    // We can map it to flatten the profile fields if needed, 
-    // but returning exactly as requested is usually best.
     const formattedAlumni = verifiedAlumni.map(user => ({
       userId: user.id,
       email: user.email,
       ...user.profile,
+      major: user.profile?.academicData?.intendedMajor || null,
+      gpa: user.profile?.academicData?.gpa || null,
+      satScore: user.profile?.academicData?.satScore || null,
+      ieltsScore: user.profile?.academicData?.ieltsScore || null,
+      openToMentoring: user.profile?.alumniData?.isMentoring || false,
+      activities: user.profile?.tags?.map(t => t.name) || [],
+      countryOfStudy: user.profile?.university?.country || null,
+      university: user.profile?.university?.name || null,
     }));
 
     return NextResponse.json(formattedAlumni, { status: 200 });

@@ -106,8 +106,18 @@ export const SignInPage = ({ className }: SignInPageProps) => {
     setCode(["", "", "", "", "", ""]);
   };
 
-  const handleSuccessFinish = () => {
-    router.push("/feed");
+  const handleSuccessFinish = async () => {
+    try {
+      const res = await fetch("/api/onboarding/check");
+      if (res.ok) {
+        const { hasProfile } = await res.json();
+        router.push(hasProfile ? "/feed" : "/onboarding");
+      } else {
+        router.push("/onboarding");
+      }
+    } catch {
+      router.push("/onboarding");
+    }
   };
 
   return (
