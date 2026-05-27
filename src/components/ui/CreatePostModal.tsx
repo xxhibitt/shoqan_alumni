@@ -7,7 +7,7 @@ import { useDashboard } from "@/components/providers/DashboardProvider";
 import { useRouter } from "next/navigation";
 
 export function CreatePostModal() {
-  const { isCreatePostOpen, setIsCreatePostOpen } = useDashboard();
+  const { isCreatePostOpen, setIsCreatePostOpen, showToast } = useDashboard();
   const router = useRouter();
 
   const [title, setTitle] = useState("");
@@ -163,12 +163,18 @@ export function CreatePostModal() {
                 </label>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/png, image/jpeg, image/jpg, image/webp"
                   ref={fileInputRef}
                   className="hidden"
                   onChange={(e) => {
                     if (e.target.files && e.target.files.length > 0) {
-                      setFile(e.target.files[0]);
+                      const file = e.target.files[0];
+                      if (file.name.toLowerCase().endsWith(".heic")) {
+                        showToast("HEIC format is not supported. Please upload a JPG or PNG.");
+                        e.target.value = "";
+                        return;
+                      }
+                      setFile(file);
                       e.target.value = "";
                     }
                   }}

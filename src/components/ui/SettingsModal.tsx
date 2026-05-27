@@ -103,6 +103,11 @@ export function SettingsModal() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, target: "avatar" | "banner") => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
+      if (file.name.toLowerCase().endsWith(".heic")) {
+        showToast("HEIC format is not supported. Please upload a JPG or PNG.");
+        e.target.value = "";
+        return;
+      }
       const reader = new FileReader();
       reader.addEventListener("load", () => {
         setCropImageSrc(reader.result?.toString() || "");
@@ -248,7 +253,7 @@ export function SettingsModal() {
                           <label className="block text-xs font-bold uppercase tracking-wider text-white/60 mb-2">
                             Avatar
                           </label>
-                          <input type="file" accept="image/*" ref={fileInputRefAvatar} className="hidden" onChange={(e) => handleFileChange(e, "avatar")} />
+                          <input type="file" accept="image/png, image/jpeg, image/jpg, image/webp" ref={fileInputRefAvatar} className="hidden" onChange={(e) => handleFileChange(e, "avatar")} />
                           <div className="flex items-center gap-3">
                             <button onClick={() => fileInputRefAvatar.current?.click()} className="px-4 py-2 bg-black/40 border border-white/10 rounded-lg text-white hover:bg-white/5 transition flex items-center gap-2">
                               <Upload className="h-4 w-4" /> Upload Avatar
@@ -260,7 +265,7 @@ export function SettingsModal() {
                           <label className="block text-xs font-bold uppercase tracking-wider text-white/60 mb-2">
                             Banner
                           </label>
-                          <input type="file" accept="image/*" ref={fileInputRefBanner} className="hidden" onChange={(e) => handleFileChange(e, "banner")} />
+                          <input type="file" accept="image/png, image/jpeg, image/jpg, image/webp" ref={fileInputRefBanner} className="hidden" onChange={(e) => handleFileChange(e, "banner")} />
                           <div className="flex items-center gap-3">
                             <button onClick={() => fileInputRefBanner.current?.click()} className="px-4 py-2 bg-black/40 border border-white/10 rounded-lg text-white hover:bg-white/5 transition flex items-center gap-2">
                               <Upload className="h-4 w-4" /> Upload Banner

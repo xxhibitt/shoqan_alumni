@@ -12,8 +12,9 @@ cloudinary.config({
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    if (!session) {
+      console.error("Upload Error: No session found");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const formData = await req.formData();
@@ -25,17 +26,22 @@ export async function POST(req: Request) {
 
     const buffer = Buffer.from(await file.arrayBuffer());
     
-    const uploadResult = await new Promise((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        { folder: "shoqan_alumni_uploads" },
-        (error, result) => {
-          if (error) return reject(error);
-          resolve(result);
-        }
-      );
-      
-      uploadStream.end(buffer);
-    });
+    let uploadResult;
+    try {
+      uploadResult = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { folder: "shoqan_alumni_uploads" },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          }
+        );
+        uploadStream.end(buffer);
+      });
+    } catch (cloudinaryError) {
+      console.error("Cloudinary Upload Error:", cloudinaryError);
+      return NextResponse.json({ error: "Cloudinary rejected payload" }, { status: 500 });
+    }
 
     return NextResponse.json({ 
       success: true, 
