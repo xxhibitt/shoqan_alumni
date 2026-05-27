@@ -153,7 +153,7 @@ export default function OnboardingWizard() {
       setIsLoadingUnis(true);
       try {
         const res = await fetch(
-          `http://universities.hipolabs.com/search?name=${encodeURIComponent(uniSearch)}`
+          `/api/universities?q=${encodeURIComponent(uniSearch)}`
         );
         const json = await res.json();
         const uniqueNames = Array.from(
@@ -444,7 +444,7 @@ export default function OnboardingWizard() {
                       <Search className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-6 text-white/30" />
                       <input
                         type="text"
-                        placeholder="Search global universities via Hipolabs API..."
+                        placeholder="Search university..."
                         value={
                           data.role === "ALUMNI" &&
                           !isUniDropdownOpen &&
