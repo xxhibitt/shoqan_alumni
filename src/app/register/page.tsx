@@ -90,7 +90,6 @@ export default function RegisterPage() {
 
                   <div className="space-y-4 pt-2">
                     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-                      <div className="flex flex-col gap-3">
                       <input
                         type="email"
                         name="email"

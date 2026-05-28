@@ -225,7 +225,7 @@ export function PublicProfileModal() {
 
                 {selectedProfile.bio && (
                   <div>
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-white/40 mb-2">About</h3>
+                    <h3 className="text-xs font-bold tracking-widest text-shoqan-light/50 uppercase mb-3">About</h3>
                     <p className="text-white/80 leading-relaxed text-sm">
                       {selectedProfile.bio}
                     </p>
@@ -234,12 +234,12 @@ export function PublicProfileModal() {
 
                 <div className="flex flex-wrap gap-2">
                   {isMentoring && (
-                    <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-md text-xs font-bold uppercase tracking-wider">
+                    <span className="bg-shoqan-primary/10 text-shoqan-primary border border-shoqan-primary/20 px-3 py-1 rounded-full text-sm font-medium">
                       Open to Mentoring
                     </span>
                   )}
                   {tagsList.map((tag: string) => (
-                    <span key={tag} className="px-3 py-1 bg-white/5 text-white/60 rounded-md text-xs font-medium">
+                    <span key={tag} className="bg-shoqan-primary/10 text-shoqan-primary border border-shoqan-primary/20 px-3 py-1 rounded-full text-sm">
                       #{tag}
                     </span>
                   ))}
@@ -247,11 +247,11 @@ export function PublicProfileModal() {
 
                 {connectionStatus === "APPROVED" && selectedProfile.socialLinks && Object.keys(selectedProfile.socialLinks).length > 0 && (
                   <div>
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-white/40 mb-3">Connect</h3>
-                    <div className="flex flex-col gap-2">
+                    <h3 className="text-xs font-bold tracking-widest text-shoqan-light/50 uppercase mb-3">Connect</h3>
+                    <div className="flex flex-wrap gap-2">
                       {Object.entries(selectedProfile.socialLinks).map(([platform, link]) => (
-                        <a key={platform} href={link as string} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-white/60 hover:text-emerald-400 transition">
-                          <LinkIcon className="h-4 w-4" /> {platform}
+                        <a key={platform} href={link as string} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition text-sm text-white/80">
+                          <LinkIcon className="h-4 w-4" /> <span className="capitalize">{platform}</span>
                         </a>
                       ))}
                     </div>
@@ -274,7 +274,7 @@ export function PublicProfileModal() {
                       const text = encodeURIComponent(`Hi ${selectedProfile.firstName}! I found your profile on Shoqan Alumni. Let's connect!`);
                       window.open(`https://t.me/${telegramUsername}?text=${text}`, '_blank');
                     }}
-                    className="w-full flex justify-center items-center gap-2 px-5 py-3.5 bg-[#2AABEE] hover:bg-[#229ED9] text-white font-bold rounded-xl transition-colors shadow-lg shadow-[#2AABEE]/20"
+                    className="w-full flex justify-center items-center gap-2 px-5 py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white font-medium rounded-xl transition-all shadow-lg shadow-blue-500/25"
                   >
                     <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current" xmlns="http://www.w3.org/2000/svg"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.892-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" /></svg>
                     Message via Telegram
@@ -306,7 +306,7 @@ export function PublicProfileModal() {
 
             <div className="space-y-6">
               <div>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-white/40 mb-3">Education</h3>
+                <h3 className="text-xs font-bold tracking-widest text-shoqan-light/50 uppercase mb-3">Education</h3>
                 <div className="space-y-3">
                   <div className="flex items-start gap-2 text-sm text-white/80">
                     <GraduationCap className="h-4 w-4 shrink-0 text-emerald-500 mt-0.5" />
@@ -348,24 +348,24 @@ export function PublicProfileModal() {
 
               {(gpa || satScore || ieltsScore) && (
                 <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-white/40 mb-3">Stats</h3>
-                  <div className="flex flex-col gap-2 w-max">
+                  <h3 className="text-xs font-bold tracking-widest text-shoqan-light/50 uppercase mb-3">Stats</h3>
+                  <div className="flex flex-wrap gap-3">
                     {gpa && (
-                      <div className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-lg border border-white/10">
-                        <Star className="h-4 w-4 text-amber-500" />
-                        <span className="text-sm font-bold text-white">GPA: {gpa}</span>
+                      <div className="flex flex-col items-center justify-center p-3 px-5 bg-white/5 border border-white/10 rounded-xl shadow-sm">
+                        <span className="text-[10px] uppercase text-amber-500 font-bold tracking-wider flex items-center gap-1 mb-1"><Star className="h-3 w-3" /> GPA</span>
+                        <span className="text-lg font-bold text-white">{gpa}</span>
                       </div>
                     )}
                     {satScore && (
-                      <div className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-lg border border-white/10">
-                        <span className="font-bold text-emerald-500 text-xs">SAT</span>
-                        <span className="text-sm font-bold text-white">{satScore}</span>
+                      <div className="flex flex-col items-center justify-center p-3 px-5 bg-white/5 border border-white/10 rounded-xl shadow-sm">
+                        <span className="text-[10px] uppercase text-emerald-500 font-bold tracking-wider mb-1">SAT</span>
+                        <span className="text-lg font-bold text-white">{satScore}</span>
                       </div>
                     )}
                     {ieltsScore && (
-                      <div className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-lg border border-white/10">
-                        <span className="font-bold text-emerald-500 text-xs">IELTS</span>
-                        <span className="text-sm font-bold text-white">{ieltsScore}</span>
+                      <div className="flex flex-col items-center justify-center p-3 px-5 bg-white/5 border border-white/10 rounded-xl shadow-sm">
+                        <span className="text-[10px] uppercase text-emerald-500 font-bold tracking-wider mb-1">IELTS</span>
+                        <span className="text-lg font-bold text-white">{ieltsScore}</span>
                       </div>
                     )}
                   </div>
