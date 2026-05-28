@@ -33,7 +33,7 @@ export function PublicProfileModal() {
     const fetchConnectionStatus = async () => {
       if (!selectedProfile) return;
       try {
-        const res = await fetch(`/api/connections/status?profileId=${selectedProfile.id}`);
+        const res = await fetch(`/api/connections/status?receiverId=${selectedProfile.userId}`);
         if (res.ok) {
           const data = await res.json();
           setConnectionStatus(data.status); // PENDING, APPROVED, REJECTED, or null

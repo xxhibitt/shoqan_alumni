@@ -11,40 +11,33 @@ export async function GET(req: Request) {
     }
 
     const { searchParams } = new URL(req.url);
-    const profileId = searchParams.get("profileId");
+    const receiverId = searchParams.get("receiverId");
 
-    if (!profileId) {
-      return NextResponse.json({ error: "Missing profileId" }, { status: 400 });
+    if (!receiverId) {
+      return NextResponse.json({ error: "Missing receiverId" }, { status: 400 });
     }
 
-    // Get the target user ID from the profile ID
-    const targetProfile = await prisma.profile.findUnique({
-      where: { id: profileId },
-      select: { userId: true }
-    });
-
-    if (!targetProfile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
-    }
-
-    const targetUserId = targetProfile.userId;
     // @ts-ignore
     const currentUserId = session.user.id;
 
-    if (targetUserId === currentUserId) {
-      return NextResponse.json({ status: "APPROVED" }); // Can always see own links
+    if (receiverId === currentUserId) {
+      return NextResponse.json({ status: "APPROVED" });
     }
 
     const connection = await prisma.connectionRequest.findFirst({
       where: {
         OR: [
-          { senderId: currentUserId, receiverId: targetUserId },
-          { senderId: targetUserId, receiverId: currentUserId }
+          { senderId: currentUserId, receiverId: receiverId },
+          { senderId: receiverId, receiverId: currentUserId }
         ]
       }
     });
 
-    return NextResponse.json({ status: connection ? connection.status : null });
+    if (!connection) {
+      return NextResponse.json({ status: "NONE" }, { status: 200 });
+    }
+
+    return NextResponse.json({ status: connection.status });
   } catch (error) {
     console.error("Connection status error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
