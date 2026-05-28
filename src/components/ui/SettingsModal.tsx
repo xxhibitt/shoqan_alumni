@@ -328,7 +328,7 @@ export function SettingsModal() {
                         {/* University */}
                         <div>
                           <label className="block text-xs font-bold uppercase tracking-wider text-white/60 mb-2">
-                            University
+                            {userRoleContext === "ALUMNI" ? "Attended University" : "Target University"}
                           </label>
                           <input
                             type="text"
@@ -367,18 +367,20 @@ export function SettingsModal() {
                               className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                             />
                           </div>
-                          <div>
-                            <label className="block text-xs font-bold uppercase tracking-wider text-white/60 mb-2">
-                              University Offers (comma separated)
-                            </label>
-                            <input
-                              type="text"
-                              value={offers}
-                              onChange={(e) => setOffers(e.target.value)}
-                              placeholder="e.g. MIT, Stanford, NUS"
-                              className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                            />
-                          </div>
+                          {userRoleContext === "ALUMNI" && (
+                            <div>
+                              <label className="block text-xs font-bold uppercase tracking-wider text-white/60 mb-2">
+                                University Offers (comma separated)
+                              </label>
+                              <input
+                                type="text"
+                                value={offers}
+                                onChange={(e) => setOffers(e.target.value)}
+                                placeholder="e.g. MIT, Stanford, NUS"
+                                className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                              />
+                            </div>
+                          )}
                         </div>
 
                         {/* Scores */}

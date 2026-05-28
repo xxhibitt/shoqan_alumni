@@ -153,9 +153,11 @@ export function PublicProfileModal() {
   let telegramUsername = socialLinks.telegram || socialLinks.tg || socialLinks.Telegram || "";
   if (telegramUsername.includes("t.me/")) {
     telegramUsername = telegramUsername.split("t.me/")[1].split("?")[0].replace("/", "");
-  } else if (telegramUsername.startsWith("@")) {
+  if (telegramUsername.startsWith("@")) {
     telegramUsername = telegramUsername.substring(1);
   }
+
+  const isAlumnus = !!selectedProfile.alumniData || (selectedProfile.gradYear && selectedProfile.gradYear < new Date().getFullYear());
 
   return (
     <AnimatePresence>
@@ -174,36 +176,39 @@ export function PublicProfileModal() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
           transition={{ type: "spring", duration: 0.4, bounce: 0 }}
-          className="relative w-full max-w-3xl overflow-hidden rounded-2xl bg-[#0f1915] shadow-2xl border border-white/10"
+          className="relative w-full max-w-2xl max-h-[85vh] rounded-2xl bg-[#0f1915] shadow-2xl border border-white/10 flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Banner */}
-          <div className="h-40 w-full relative bg-gradient-to-tr from-emerald-900/40 to-[#0a110e]">
-            <BannerImage url={selectedProfile.bannerUrl} className="w-full h-full object-cover" />
-            <div className="absolute top-4 right-4 flex gap-2">
-              {isAdmin && (
-                <button
-                  onClick={handleEdit}
-                  className="p-2 rounded-full bg-black/40 text-white/70 hover:text-white hover:bg-blue-500/20 hover:text-blue-400 transition backdrop-blur-md"
-                >
-                  <Edit3 className="h-5 w-5" />
-                </button>
-              )}
+          {/* Action Buttons */}
+          <div className="absolute top-4 right-4 flex gap-2 z-50">
+            {isAdmin && (
               <button
-                onClick={handleSave}
-                disabled={isLoadingSaveStatus}
-                className={`p-2 rounded-full bg-black/40 text-white/70 hover:text-white transition backdrop-blur-md ${isLoadingSaveStatus ? 'opacity-50 cursor-not-allowed' : 'hover:bg-emerald-500/20 hover:text-emerald-400'}`}
+                onClick={handleEdit}
+                className="p-2 rounded-full bg-black/40 text-white/70 hover:text-white hover:bg-blue-500/20 hover:text-blue-400 transition backdrop-blur-md"
               >
-                <Bookmark className={`h-5 w-5 ${isBookmarked ? "fill-emerald-500 text-emerald-500" : ""}`} />
+                <Edit3 className="h-5 w-5" />
               </button>
-              <button
-                onClick={() => setSelectedProfile(null)}
-                className="p-2 rounded-full bg-black/40 text-white/70 hover:text-white hover:bg-white/10 transition backdrop-blur-md"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+            )}
+            <button
+              onClick={handleSave}
+              disabled={isLoadingSaveStatus}
+              className={`p-2 rounded-full bg-black/40 text-white/70 hover:text-white transition backdrop-blur-md ${isLoadingSaveStatus ? 'opacity-50 cursor-not-allowed' : 'hover:bg-emerald-500/20 hover:text-emerald-400'}`}
+            >
+              <Bookmark className={`h-5 w-5 ${isBookmarked ? "fill-emerald-500 text-emerald-500" : ""}`} />
+            </button>
+            <button
+              onClick={() => setSelectedProfile(null)}
+              className="p-2 rounded-full bg-black/40 text-white/70 hover:text-white hover:bg-white/10 transition backdrop-blur-md"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
+
+          <div className="overflow-y-auto w-full h-full pb-4">
+            {/* Banner */}
+            <div className="h-40 w-full relative bg-gradient-to-tr from-emerald-900/40 to-[#0a110e] shrink-0">
+              <BannerImage url={selectedProfile.bannerUrl} className="w-full h-full object-cover" />
+            </div>
 
           <div className="px-8 pb-8 relative -top-12">
             <div className="flex justify-between items-end mb-6">
@@ -226,7 +231,7 @@ export function PublicProfileModal() {
                 {selectedProfile.bio && (
                   <div>
                     <h3 className="text-xs font-bold tracking-widest text-shoqan-light/50 uppercase mb-3">About</h3>
-                    <p className="text-white/80 leading-relaxed text-sm">
+                    <p className="text-white/80 leading-relaxed text-base">
                       {selectedProfile.bio}
                     </p>
                   </div>
@@ -312,7 +317,9 @@ export function PublicProfileModal() {
                     <GraduationCap className="h-4 w-4 shrink-0 text-emerald-500 mt-0.5" />
                     <div>
                       <div className="font-medium">{uniName}</div>
-                      <div className="text-white/40 text-xs">Class of {selectedProfile.gradYear}</div>
+                      <div className="text-white/40 text-xs">
+                        {isAlumnus ? "Attended" : "Target University"} • Class of {selectedProfile.gradYear}
+                      </div>
                     </div>
                   </div>
                   {uniCountry && (
@@ -332,7 +339,7 @@ export function PublicProfileModal() {
                       </div>
                     </div>
                   )}
-                  {selectedProfile.offers && selectedProfile.offers.length > 0 && (
+                  {isAlumnus && selectedProfile.offers && selectedProfile.offers.length > 0 && (
                     <div className="flex items-start gap-2 text-sm text-white/80 mt-4">
                       <span className="text-lg mt-0.5">🎓</span>
                       <div>
@@ -372,6 +379,7 @@ export function PublicProfileModal() {
                 </div>
               )}
 
+            </div>
             </div>
           </div>
         </motion.div>

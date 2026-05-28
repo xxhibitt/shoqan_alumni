@@ -398,7 +398,7 @@ export default function OnboardingWizard() {
                   className="text-4xl md:text-5xl font-semibold tracking-tight"
                 >
                   {data.role === "ALUMNI"
-                    ? "Where did you go?"
+                    ? "Your Academic Journey"
                     : "What are your goals?"}
                 </motion.h1>
 
@@ -410,7 +410,7 @@ export default function OnboardingWizard() {
                   <div className="relative md:col-span-2" ref={uniDropdownRef}>
                     <label className="text-sm font-medium text-white/50 mb-2 block uppercase tracking-wider">
                       {data.role === "ALUMNI"
-                        ? "Attended University"
+                        ? "Target / Current University"
                         : "Target Universities"}
                     </label>
 
