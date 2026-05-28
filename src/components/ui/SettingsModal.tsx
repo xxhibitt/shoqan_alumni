@@ -13,6 +13,7 @@ export function SettingsModal() {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [bannerUrl, setBannerUrl] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [bio, setBio] = useState("");
   const [role, setRole] = useState("");
   const [university, setUniversity] = useState("");
   const [userEmail, setUserEmail] = useState("");
@@ -26,6 +27,8 @@ export function SettingsModal() {
   const [cropTarget, setCropTarget] = useState<"avatar" | "banner" | null>(null);
 
   const [activities, setActivities] = useState("");
+  const [awards, setAwards] = useState("");
+  const [offers, setOffers] = useState("");
   const [isMentoring, setIsMentoring] = useState(false);
   const [satScore, setSatScore] = useState("");
   const [ieltsScore, setIeltsScore] = useState("");
@@ -52,9 +55,12 @@ export function SettingsModal() {
                 setUniversity(user.profile.university?.name || "");
                 setRole(user.profile.alumniData?.jobTitle || user.profile.academicData?.intendedMajor || "");
                 setActivities(user.profile.tags?.map((t: any) => t.name).join(", ") || "");
+                setAwards(user.profile.awards?.join(", ") || "");
+                setOffers(user.profile.offers?.join(", ") || "");
                 setSatScore(user.profile.academicData?.satScore?.toString() || "");
                 setIeltsScore(user.profile.academicData?.ieltsScore?.toString() || "");
                 setIsMentoring(user.profile.alumniData?.isMentoring || false);
+                setBio(user.profile.bio || "");
               }
             }
           }
@@ -86,6 +92,9 @@ export function SettingsModal() {
           satScore: satScore ? parseInt(satScore) : null,
           ieltsScore: ieltsScore ? parseFloat(ieltsScore) : null,
           activities: activities.split(",").map(a => a.trim()).filter(Boolean),
+          awards: awards.split(",").map(a => a.trim()).filter(Boolean),
+          offers: offers.split(",").map(a => a.trim()).filter(Boolean),
+          bio,
           isMentoring
         }),
       });
@@ -289,6 +298,20 @@ export function SettingsModal() {
                           </div>
                         </div>
 
+                        {/* Bio Section */}
+                        <div>
+                          <label className="block text-xs font-bold uppercase tracking-wider text-white/60 mb-2">
+                            About Me / Bio
+                          </label>
+                          <textarea
+                            rows={3}
+                            value={bio}
+                            onChange={(e) => setBio(e.target.value)}
+                            placeholder="A short bio about yourself..."
+                            className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 resize-none"
+                          />
+                        </div>
+
                         {/* Title / Role Section */}
                         <div>
                           <label className="block text-xs font-bold uppercase tracking-wider text-white/60 mb-2">
@@ -328,6 +351,34 @@ export function SettingsModal() {
                             placeholder="e.g. Model UN, Debate Club, Tech Team"
                             className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                           />
+                        </div>
+
+                        {/* Academic Achievements */}
+                        <div className="grid grid-cols-1 gap-6">
+                          <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-white/60 mb-2">
+                              National/International Awards (comma separated)
+                            </label>
+                            <input
+                              type="text"
+                              value={awards}
+                              onChange={(e) => setAwards(e.target.value)}
+                              placeholder="e.g. IMO Gold, Google HashCode Finalist"
+                              className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-white/60 mb-2">
+                              University Offers (comma separated)
+                            </label>
+                            <input
+                              type="text"
+                              value={offers}
+                              onChange={(e) => setOffers(e.target.value)}
+                              placeholder="e.g. MIT, Stanford, NUS"
+                              className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                            />
+                          </div>
                         </div>
 
                         {/* Scores */}

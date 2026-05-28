@@ -11,6 +11,7 @@ export function PublicProfileModal() {
   const { selectedProfile, setSelectedProfile, showToast } = useDashboard();
   const [isAdmin, setIsAdmin] = React.useState(false);
   const [isBookmarked, setIsBookmarked] = React.useState(false);
+  const [isLoadingSaveStatus, setIsLoadingSaveStatus] = React.useState(true);
   const [connectionStatus, setConnectionStatus] = React.useState<string | null>(null);
   const [isConnecting, setIsConnecting] = React.useState(false);
   const [isLoadingStatus, setIsLoadingStatus] = React.useState(true);
@@ -48,9 +49,26 @@ export function PublicProfileModal() {
       }
     };
 
+    const fetchSaveStatus = async () => {
+      if (!selectedProfile) return;
+      setIsLoadingSaveStatus(true);
+      try {
+        const res = await fetch(`/api/save/status?targetId=${selectedProfile.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setIsBookmarked(data.isSaved);
+        }
+      } catch (e) {
+        console.error("Failed to fetch save status", e);
+      } finally {
+        setIsLoadingSaveStatus(false);
+      }
+    };
+
     checkRole();
     if (selectedProfile) {
       fetchConnectionStatus();
+      fetchSaveStatus();
     }
   }, [selectedProfile]);
 
@@ -173,7 +191,8 @@ export function PublicProfileModal() {
               )}
               <button
                 onClick={handleSave}
-                className="p-2 rounded-full bg-black/40 text-white/70 hover:text-white hover:bg-emerald-500/20 hover:text-emerald-400 transition backdrop-blur-md"
+                disabled={isLoadingSaveStatus}
+                className={`p-2 rounded-full bg-black/40 text-white/70 hover:text-white transition backdrop-blur-md ${isLoadingSaveStatus ? 'opacity-50 cursor-not-allowed' : 'hover:bg-emerald-500/20 hover:text-emerald-400'}`}
               >
                 <Bookmark className={`h-5 w-5 ${isBookmarked ? "fill-emerald-500 text-emerald-500" : ""}`} />
               </button>
@@ -300,6 +319,28 @@ export function PublicProfileModal() {
                     <div className="flex items-center gap-2 text-sm text-white/80">
                       <MapPin className="h-4 w-4 shrink-0 text-emerald-500" />
                       <span>{uniCountry}</span>
+                    </div>
+                  )}
+                  {selectedProfile.awards && selectedProfile.awards.length > 0 && (
+                    <div className="flex items-start gap-2 text-sm text-white/80 mt-4">
+                      <span className="text-lg mt-0.5">🏆</span>
+                      <div>
+                        <div className="font-medium text-emerald-400">Awards</div>
+                        <div className="text-white/60 text-xs mt-1 leading-relaxed">
+                          {selectedProfile.awards.join(", ")}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {selectedProfile.offers && selectedProfile.offers.length > 0 && (
+                    <div className="flex items-start gap-2 text-sm text-white/80 mt-4">
+                      <span className="text-lg mt-0.5">🎓</span>
+                      <div>
+                        <div className="font-medium text-emerald-400">University Offers</div>
+                        <div className="text-white/60 text-xs mt-1 leading-relaxed">
+                          {selectedProfile.offers.join(", ")}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>

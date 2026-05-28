@@ -64,7 +64,9 @@ export async function PUT(req: Request) {
       satScore,
       ieltsScore,
       activities,
-      isMentoring
+      isMentoring,
+      awards,
+      offers
     } = body;
 
     // Handle University
@@ -110,6 +112,8 @@ export async function PUT(req: Request) {
         ...(bio !== undefined && { bio }),
         ...(socialLinks !== undefined && { socialLinks }),
         ...(universityId !== undefined && { university: universityId ? { connect: { id: universityId } } : { disconnect: true } }),
+        ...(awards !== undefined && { awards }),
+        ...(offers !== undefined && { offers }),
         tags: {
           set: [], // Clear old tags
           connectOrCreate: tagConnectOrCreate

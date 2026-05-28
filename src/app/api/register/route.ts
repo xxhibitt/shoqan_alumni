@@ -4,9 +4,9 @@ import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
   try {
-    const { firstName, lastName, email, password } = await req.json();
+    const { email, password } = await req.json();
 
-    if (!email || !password || !firstName || !lastName) {
+    if (!email || !password) {
       return NextResponse.json(
         { error: "Missing required fields." },
         { status: 400 }
@@ -37,8 +37,8 @@ export async function POST(req: Request) {
         isVerified: false,
         profile: {
           create: {
-            firstName,
-            lastName,
+            firstName: "New",
+            lastName: "User",
           },
         },
       },

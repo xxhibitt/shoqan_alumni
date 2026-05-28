@@ -9,8 +9,6 @@ import { cn } from "@/lib/utils";
 export default function RegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
     email: "",
     password: "",
   });
@@ -92,26 +90,7 @@ export default function RegisterPage() {
 
                   <div className="space-y-4 pt-2">
                     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-                      <div className="flex gap-3">
-                        <input
-                          type="text"
-                          name="firstName"
-                          placeholder="First Name"
-                          value={formData.firstName}
-                          onChange={handleChange}
-                          className="w-1/2 backdrop-blur-[1px] text-white border-1 border-shoqan-primary/30 rounded-2xl py-3 px-4 focus:outline-none focus:border focus:border-shoqan-primary/70 bg-black/20"
-                          required
-                        />
-                        <input
-                          type="text"
-                          name="lastName"
-                          placeholder="Last Name"
-                          value={formData.lastName}
-                          onChange={handleChange}
-                          className="w-1/2 backdrop-blur-[1px] text-white border-1 border-shoqan-primary/30 rounded-2xl py-3 px-4 focus:outline-none focus:border focus:border-shoqan-primary/70 bg-black/20"
-                          required
-                        />
-                      </div>
+                      <div className="flex flex-col gap-3">
                       <input
                         type="email"
                         name="email"
