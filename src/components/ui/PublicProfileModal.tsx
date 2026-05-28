@@ -13,6 +13,7 @@ export function PublicProfileModal() {
   const [isBookmarked, setIsBookmarked] = React.useState(false);
   const [connectionStatus, setConnectionStatus] = React.useState<string | null>(null);
   const [isConnecting, setIsConnecting] = React.useState(false);
+  const [isLoadingStatus, setIsLoadingStatus] = React.useState(true);
 
   useEffect(() => {
     // Check if current user is admin
@@ -32,6 +33,8 @@ export function PublicProfileModal() {
 
     const fetchConnectionStatus = async () => {
       if (!selectedProfile) return;
+      setIsLoadingStatus(true);
+      setConnectionStatus(null);
       try {
         const res = await fetch(`/api/connections/status?receiverId=${selectedProfile.userId}`);
         if (res.ok) {
@@ -40,6 +43,8 @@ export function PublicProfileModal() {
         }
       } catch (e) {
         console.error("Failed to fetch connection status", e);
+      } finally {
+        setIsLoadingStatus(false);
       }
     };
 
@@ -238,7 +243,12 @@ export function PublicProfileModal() {
 
             {/* Smart Icebreaker / Connection Area */}
             <div className="pt-8 border-t border-white/10 mt-6">
-              {connectionStatus === "APPROVED" ? (
+              {isLoadingStatus ? (
+                <button disabled className="w-full flex justify-center items-center gap-2 px-5 py-3.5 bg-white/5 text-white/50 font-bold rounded-xl cursor-not-allowed">
+                  <div className="h-5 w-5 border-2 border-white/50 border-t-transparent rounded-full animate-spin" />
+                  Checking Status...
+                </button>
+              ) : connectionStatus === "APPROVED" ? (
                 telegramUsername ? (
                   <button
                     onClick={() => {
