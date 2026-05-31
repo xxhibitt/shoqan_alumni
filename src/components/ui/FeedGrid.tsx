@@ -24,9 +24,9 @@ export function FeedGrid({ profiles, recommendedUnis = [] }: { profiles: any[], 
   return (
     <>
       {/* Top Section: Profiles Similar to You */}
-      <section className="mb-12">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-white">Profiles Similar to You</h2>
+      <section className="mb-8 md:mb-12">
+        <div className="flex items-center justify-between mb-4 md:mb-6">
+          <h2 className="text-lg md:text-xl font-bold text-white">Profiles Similar to You</h2>
           <Link href="/explore" className="text-sm font-medium text-emerald-400 hover:text-emerald-300">View All</Link>
         </div>
         
@@ -76,9 +76,9 @@ export function FeedGrid({ profiles, recommendedUnis = [] }: { profiles: any[], 
 
       {/* University Discovery */}
       {recommendedUnis.length > 0 && (
-        <section className="mb-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-white">Suggested Universities</h2>
+        <section className="mb-8 md:mb-12">
+          <div className="flex items-center justify-between mb-4 md:mb-6">
+            <h2 className="text-lg md:text-xl font-bold text-white">Suggested Universities</h2>
           </div>
           <div className="flex gap-4 overflow-x-auto pb-4 snap-x hide-scrollbar">
             {recommendedUnis.map((uni, i) => (
@@ -94,8 +94,8 @@ export function FeedGrid({ profiles, recommendedUnis = [] }: { profiles: any[], 
 
       {/* Bottom Section: Based on Your Searches/Interests */}
       <section>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-white">All Alumni Directory</h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 md:mb-6 gap-4">
+          <h2 className="text-lg md:text-xl font-bold text-white">All Alumni Directory</h2>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
             <input 
@@ -114,7 +114,7 @@ export function FeedGrid({ profiles, recommendedUnis = [] }: { profiles: any[], 
           </div>
         )}
 
-        <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+        <div className="columns-1 md:columns-2 lg:columns-3 gap-4 md:gap-6 space-y-4 md:space-y-6">
           {filteredProfiles.map((p, i) => (
             <div key={p.id} onClick={() => setSelectedProfile(p)} className="flex flex-col h-full break-inside-avoid bg-[#0f1915] border border-white/5 rounded-2xl overflow-hidden hover:border-emerald-500/30 transition-colors cursor-pointer group">
               {/* Banner Area */}

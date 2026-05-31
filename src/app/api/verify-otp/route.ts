@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 import { sendTelegramMessage } from "@/lib/telegram";
+import { generateEmailHTML } from "@/utils/emailTemplates";
 
 export async function POST(req: Request) {
   try {
@@ -61,7 +62,13 @@ export async function POST(req: Request) {
         from: `"Shoqan Alumni" <${process.env.EMAIL_SERVER_USER}>`,
         to: email,
         subject: "Your Shoqan Alumni Verification Code",
-        text: `Your login code is: ${otpCode}. It expires in 10 minutes.`,
+        html: generateEmailHTML({
+          title: "Your Login Code",
+          preheader: `Your OTP is ${otpCode}`,
+          content: `<p style="font-size: 18px; text-align: center;">Your one-time password is:</p>
+                    <p style="font-size: 36px; font-weight: bold; color: #10b981; text-align: center; letter-spacing: 6px; margin: 20px 0;">${otpCode}</p>
+                    <p style="text-align: center; color: #64748b;">This code expires in 10 minutes.</p>`,
+        }),
       });
       console.log(`[Email Sent] OTP successfully delivered to ${email}.`);
     } catch (emailError: any) {

@@ -4,6 +4,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
 import nodemailer from "nodemailer";
 import { sendTelegramMessage } from "@/lib/telegram";
+import { generateEmailHTML } from "@/utils/emailTemplates";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -93,18 +94,17 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
           },
         });
 
-        const htmlContent = `
-  <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
-    <h2 style="color: #333;">Connection Request Accepted!</h2>
-    <p>Good news! <strong>${receiverName}</strong> has accepted your connection request on Shoqan Alumni.</p>
-    <div style="margin: 20px 0; padding: 15px; background-color: #f9fafb; border-radius: 6px;">
-      <p style="margin: 0;">Their Telegram: <strong>${receiverTg}</strong></p>
-    </div>
-    <div style="text-align: center;">
-      <a href="${appUrl}/feed" style="background-color: #10b981; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Go to Feed</a>
-    </div>
-  </div>
-        `;
+        const htmlContent = generateEmailHTML({
+          title: "Connection Request Accepted!",
+          preheader: `${receiverName} accepted your request.`,
+          content: `<p style="text-align: center;">Good news! <strong>${receiverName}</strong> has accepted your connection request on Shoqan Alumni.</p>
+                    <div style="margin: 30px 0; padding: 20px; background-color: #f8faf9; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center;">
+                      <p style="margin: 0; color: #64748b; font-size: 14px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">Their Telegram:</p>
+                      <p style="margin: 10px 0 0 0; font-size: 20px; font-weight: bold; color: #1e293b;">${receiverTg}</p>
+                    </div>`,
+          buttonText: "Go to Feed",
+          buttonUrl: `${appUrl}/feed`
+        });
 
         await transporter.sendMail({
           from: `"Shoqan Alumni" <${process.env.EMAIL_SERVER_USER}>`,

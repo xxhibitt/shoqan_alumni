@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { editTelegramMessage, sendTelegramMessage } from "@/lib/telegram";
 import nodemailer from "nodemailer";
+import { generateEmailHTML } from "@/utils/emailTemplates";
 
 export async function POST(req: Request) {
   try {
@@ -104,14 +105,34 @@ export async function POST(req: Request) {
                 from: `"Shoqan Alumni" <${process.env.EMAIL_SERVER_USER}>`,
                 to: connection.sender.email,
                 subject: "Connection Request Accepted",
-                html: `<p>Good news! <strong>${receiverName}</strong> accepted your connection request. You can contact them on Telegram: ${receiverTg}</p>`,
+                html: generateEmailHTML({
+                  title: "Connection Request Accepted!",
+                  preheader: `${receiverName} accepted your request.`,
+                  content: `<p style="text-align: center;">Good news! <strong>${receiverName}</strong> has accepted your connection request on Shoqan Alumni.</p>
+                            <div style="margin: 30px 0; padding: 20px; background-color: #f8faf9; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center;">
+                              <p style="margin: 0; color: #64748b; font-size: 14px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">Their Telegram:</p>
+                              <p style="margin: 10px 0 0 0; font-size: 20px; font-weight: bold; color: #1e293b;">${receiverTg}</p>
+                            </div>`,
+                  buttonText: "Go to Feed",
+                  buttonUrl: `${process.env.NEXT_PUBLIC_APP_URL || "https://shoqan-alumni.vercel.app"}/feed`
+                }),
               });
 
               await transporter.sendMail({
                 from: `"Shoqan Alumni" <${process.env.EMAIL_SERVER_USER}>`,
                 to: connection.receiver.email,
                 subject: "Connection Request Accepted",
-                html: `<p>You accepted <strong>${senderName}</strong>'s connection request. Their Telegram is: ${senderTg}</p>`,
+                html: generateEmailHTML({
+                  title: "Connection Accepted",
+                  preheader: `You accepted ${senderName}'s request.`,
+                  content: `<p style="text-align: center;">You accepted <strong>${senderName}</strong>'s connection request on Shoqan Alumni.</p>
+                            <div style="margin: 30px 0; padding: 20px; background-color: #f8faf9; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center;">
+                              <p style="margin: 0; color: #64748b; font-size: 14px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">Their Telegram:</p>
+                              <p style="margin: 10px 0 0 0; font-size: 20px; font-weight: bold; color: #1e293b;">${senderTg}</p>
+                            </div>`,
+                  buttonText: "Go to Feed",
+                  buttonUrl: `${process.env.NEXT_PUBLIC_APP_URL || "https://shoqan-alumni.vercel.app"}/feed`
+                }),
               });
             } catch (err) {
               console.error("Failed to send acceptance emails", err);

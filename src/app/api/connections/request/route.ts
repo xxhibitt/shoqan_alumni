@@ -4,6 +4,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
 import nodemailer from "nodemailer";
 import { sendTelegramMessage } from "@/lib/telegram";
+import { generateEmailHTML } from "@/utils/emailTemplates";
 
 export async function POST(req: Request) {
   try {
@@ -70,19 +71,17 @@ export async function POST(req: Request) {
         const senderFullName = sender.profile ? `${sender.profile.firstName} ${sender.profile.lastName}` : "Someone";
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://shoqan-alumni.vercel.app";
 
-        const htmlContent = `
-  <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
-    <h2 style="color: #333;">New Connection Request</h2>
-    <p>${senderFullName} would like to join your network on Shoqan Alumni.</p>
-    <div style="text-align: center; margin: 20px 0;">
-      <img src="${avatarUrl}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;" alt="Avatar" />
-      <h3 style="margin: 10px 0 5px 0;">${senderFullName}</h3>
-    </div>
-    <div style="text-align: center;">
-      <a href="${appUrl}/connection?requestId=${request.id}" style="background-color: #10b981; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Review Request</a>
-    </div>
-  </div>
-        `;
+        const htmlContent = generateEmailHTML({
+          title: "New Connection Request",
+          preheader: `${senderFullName} would like to connect.`,
+          content: `<p style="text-align: center;"><strong>${senderFullName}</strong> would like to join your network on Shoqan Alumni.</p>
+                    <div style="text-align: center; margin: 30px 0;">
+                      <img src="${avatarUrl}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #10b981;" alt="Avatar" />
+                      <h3 style="margin: 15px 0 5px 0; color: #1e293b; font-size: 18px;">${senderFullName}</h3>
+                    </div>`,
+          buttonText: "Review Request",
+          buttonUrl: `${appUrl}/connection?requestId=${request.id}`
+        });
 
         await transporter.sendMail({
           from: `"Shoqan Alumni" <${process.env.EMAIL_SERVER_USER}>`,

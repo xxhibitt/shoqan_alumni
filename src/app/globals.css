@@ -1,31 +1,33 @@
 @import "tailwindcss";
 @variant dark (&:where(.dark, .dark *));
 
-:root {
-  --background: #d4e8dd;
-  --foreground: #092e1e;
-}
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-border: var(--card-border);
+  --color-muted: var(--muted);
   
   /* Shoqan Brand Colors */
   --color-shoqan-light: #d4e8dd;
-  --color-shoqan-dark: #0f1a16;
+  --color-shoqan-dark: #0f1915;
   --color-shoqan-primary: #10b981; /* Emerald 500 equivalent */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: var(--color-shoqan-dark);
-    --foreground: #ededed;
-  }
+:root {
+  --background: #f8faf9;
+  --foreground: #1e293b;
+  --card: #ffffff;
+  --card-border: #e2e8f0;
+  --muted: #64748b;
 }
 
-:root[data-theme="dark"] {
-  --background: var(--color-shoqan-dark);
+.dark {
+  --background: #0f1915;
   --foreground: #ededed;
+  --card: rgba(255, 255, 255, 0.05); /* bg-white/5 */
+  --card-border: rgba(255, 255, 255, 0.1); /* border-white/10 */
+  --muted: rgba(255, 255, 255, 0.5); /* text-white/50 */
 }
 
 body {
