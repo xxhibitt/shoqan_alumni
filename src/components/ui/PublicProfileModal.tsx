@@ -14,6 +14,7 @@ export function PublicProfileModal() {
   const [connectionStatus, setConnectionStatus] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isLoadingStatus, setIsLoadingStatus] = useState(true);
+  const [isGeneratingTgToken, setIsGeneratingTgToken] = useState(false);
 
   useEffect(() => {
     const checkRole = async () => {
@@ -152,6 +153,25 @@ export function PublicProfileModal() {
 
   const isAlumnus = !!selectedProfile.alumniData || (selectedProfile.gradYear && selectedProfile.gradYear < new Date().getFullYear());
 
+  const handleLinkTelegram = async () => {
+    const newWindow = window.open('about:blank', '_blank');
+    setIsGeneratingTgToken(true);
+    try {
+      const res = await fetch("/api/telegram/generate-token", { method: "POST" });
+      const data = await res.json();
+      if (data.token) {
+        if (newWindow) newWindow.location.href = `https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME}?start=${data.token}`;
+      } else {
+        if (newWindow) newWindow.close();
+      }
+    } catch (e) {
+      console.error("Failed to generate token", e);
+      if (newWindow) newWindow.close();
+    } finally {
+      setIsGeneratingTgToken(false);
+    }
+  };
+
   const renderConnectionAction = () => {
     if (isLoadingStatus) {
       return (
@@ -163,26 +183,21 @@ export function PublicProfileModal() {
     }
 
     if (connectionStatus === "APPROVED") {
-      if (telegramUsername) {
-        return (
-          <button
-            onClick={() => {
-              const text = encodeURIComponent(`Hi ${selectedProfile.firstName}! I found your profile on Shoqan Alumni. Let's connect!`);
-              window.open(`https://t.me/${telegramUsername}?text=${text}`, '_blank');
-            }}
-            className="w-full flex justify-center items-center gap-2 px-5 py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white font-medium rounded-xl transition-all shadow-lg shadow-blue-500/25"
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current" xmlns="http://www.w3.org/2000/svg"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.892-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" /></svg>
-            Message via Telegram
-          </button>
-        );
-      } else {
-        return (
+      return (
+        <div className="space-y-3">
           <button disabled className="w-full flex justify-center items-center gap-2 px-5 py-3.5 bg-emerald-500/20 text-emerald-500 font-bold rounded-xl cursor-default">
             <Check className="h-5 w-5" /> Connected
           </button>
-        );
-      }
+          <button
+            onClick={handleLinkTelegram}
+            disabled={isGeneratingTgToken}
+            className="w-full flex justify-center items-center gap-2 px-5 py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white font-medium rounded-xl transition-all shadow-lg shadow-blue-500/25 disabled:opacity-50"
+          >
+            <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current" xmlns="http://www.w3.org/2000/svg"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.892-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" /></svg>
+            {isGeneratingTgToken ? "Generating link..." : "Link Telegram Account"}
+          </button>
+        </div>
+      );
     }
 
     if (connectionStatus === "PENDING") {
@@ -304,7 +319,7 @@ export function PublicProfileModal() {
                     <div>
                       <h3 className="text-xs font-bold tracking-widest text-shoqan-light/50 uppercase mb-3">Connect</h3>
                       <div className="flex flex-wrap gap-2">
-                        {Object.entries(selectedProfile.socialLinks).map(([platform, link]) => (
+                        {Object.entries(selectedProfile.socialLinks).filter(([platform]) => !platform.toLowerCase().includes('tg') && !platform.toLowerCase().includes('telegram')).map(([platform, link]) => (
                           <a key={platform} href={link as string} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition text-sm text-white/80">
                             <LinkIcon className="h-4 w-4" /> <span className="capitalize">{platform}</span>
                           </a>
