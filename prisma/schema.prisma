@@ -28,8 +28,10 @@ model User {
   role         Role     @default(STUDENT)
   isVerified   Boolean  @default(false)
   otpCode      String?
-  otpExpires   DateTime?
-  createdAt      DateTime       @default(now())
+  otpExpires          DateTime?
+  telegramChatId      String?
+  telegramAuthToken   String?
+  createdAt           DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   profile        Profile?
   posts          Post[]         @relation("UserPosts")

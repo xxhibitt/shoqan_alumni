@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
+import { sendTelegramMessage } from "@/lib/telegram";
 
 export async function POST(req: Request) {
   try {
@@ -68,6 +69,14 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: "Failed to send verification email" },
         { status: 500 }
+      );
+    }
+
+    // Telegram Logic
+    if (user.telegramChatId) {
+      await sendTelegramMessage(
+        user.telegramChatId,
+        `🔐 *Your Shoqan Alumni Login Code*\n\nYour OTP is: *${otpCode}*.\nIt expires in 10 minutes.`
       );
     }
 
