@@ -319,7 +319,7 @@ export function PublicProfileModal() {
                     <div>
                       <h3 className="text-xs font-bold tracking-widest text-shoqan-light/50 uppercase mb-3">Connect</h3>
                       <div className="flex flex-wrap gap-2">
-                        {Object.entries(selectedProfile.socialLinks).filter(([platform]) => !platform.toLowerCase().includes('tg') && !platform.toLowerCase().includes('telegram')).map(([platform, link]) => (
+                        {Object.entries(selectedProfile.socialLinks).filter(([platform]) => !['tg', 'telegram'].includes(platform.toLowerCase())).map(([platform, link]) => (
                           <a key={platform} href={link as string} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition text-sm text-white/80">
                             <LinkIcon className="h-4 w-4" /> <span className="capitalize">{platform}</span>
                           </a>
