@@ -66,7 +66,7 @@ export async function POST(req: Request) {
           },
         });
 
-        const avatarUrl = sender.profile?.avatarUrl || "https://i.pravatar.cc/150";
+        const avatarUrl = sender.profile?.avatarUrl || `https://ui-avatars.com/api/?name=${sender.profile?.firstName || 'User'}+${sender.profile?.lastName || ''}&background=10b981&color=fff&rounded=true&bold=true`;
         const senderFullName = sender.profile ? `${sender.profile.firstName} ${sender.profile.lastName}` : "Someone";
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://shoqan-alumni.vercel.app";
 

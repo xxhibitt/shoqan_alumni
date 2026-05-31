@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
+    if (!session || !session.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -25,8 +25,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: "Request not found" }, { status: 404 });
     }
 
-    // @ts-ignore
-    if (request.receiverId !== session.user.id) {
+    if (request.receiver.email !== session.user.email) {
       return NextResponse.json({ error: "Unauthorized access to request" }, { status: 403 });
     }
 
@@ -40,7 +39,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
+    if (!session || !session.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -50,15 +49,15 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const { action } = body; // "accept" or "decline"
 
     const request = await prisma.connectionRequest.findUnique({
-      where: { id }
+      where: { id },
+      include: { receiver: true }
     });
 
     if (!request) {
       return NextResponse.json({ error: "Request not found" }, { status: 404 });
     }
 
-    // @ts-ignore
-    if (request.receiverId !== session.user.id) {
+    if (request.receiver.email !== session.user.email) {
       return NextResponse.json({ error: "Unauthorized access to request" }, { status: 403 });
     }
 
