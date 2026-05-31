@@ -80,7 +80,15 @@ export async function POST(req: Request) {
       if (receiver.telegramChatId) {
         await sendTelegramMessage(
           receiver.telegramChatId,
-          `🤝 *New Connection Request!*\n\n${senderName} wants to connect with you on Shoqan Alumni.\nLog in to your account to accept or decline.`
+          `🤝 *New Connection Request!*\n\n${senderName} wants to connect with you on Shoqan Alumni.\nLog in to your account to accept or decline.`,
+          {
+            inline_keyboard: [
+              [
+                { text: "✅ Accept", callback_data: `acc_${request.id}` },
+                { text: "❌ Decline", callback_data: `dec_${request.id}` }
+              ]
+            ]
+          }
         );
       }
     }
