@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { editTelegramMessage, sendTelegramMessage } from "@/lib/telegram";
+import nodemailer from "nodemailer";
 
 export async function POST(req: Request) {
   try {
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                   chat_id: body.message.chat.id,
-                  text: "✅ Your account has been successfully linked! You will now receive notifications here.",
+                  text: "✅ Your account has been successfully linked!\n\nYou can now return to the website.\nThis bot will send you:\n- Connection requests from other users\n- OTP codes for secure login (auto-deleted after use for security).",
                 }),
               });
             }
@@ -67,8 +68,8 @@ export async function POST(req: Request) {
           const senderName = connection.sender.profile ? `${connection.sender.profile.firstName} ${connection.sender.profile.lastName}` : "User";
           const receiverName = connection.receiver.profile ? `${connection.receiver.profile.firstName} ${connection.receiver.profile.lastName}` : "User";
           
-          const senderTg = connection.sender.telegramUsername ? `@${connection.sender.telegramUsername}` : "They haven't linked Telegram yet.";
-          const receiverTg = connection.receiver.telegramUsername ? `@${connection.receiver.telegramUsername}` : "They haven't linked Telegram yet.";
+          const senderTg = connection.sender.telegramUsername ? `@${connection.sender.telegramUsername}` : 'User has not linked Telegram';
+          const receiverTg = connection.receiver.telegramUsername ? `@${connection.receiver.telegramUsername}` : 'User has not linked Telegram';
 
           if (action === "acc_") {
             // Accept Connection
@@ -80,19 +81,40 @@ export async function POST(req: Request) {
             await editTelegramMessage(
               chatId,
               messageId,
-              `✅ You accepted the connection request from ${senderName}.`
-            );
-
-            await sendTelegramMessage(
-              chatId,
-              `Here is their contact: ${senderTg}`
+              `✅ You accepted the connection request from ${senderName}. Their Telegram: ${senderTg}`
             );
 
             if (connection.sender.telegramChatId) {
               await sendTelegramMessage(
                 connection.sender.telegramChatId,
-                `✅ ${receiverName} accepted your connection request! Here is their contact: ${receiverTg}`
+                `✅ ${receiverName} accepted your connection request! Their Telegram: ${receiverTg}`
               );
+            }
+
+            try {
+              const transporter = nodemailer.createTransport({
+                service: "gmail",
+                auth: {
+                  user: process.env.EMAIL_SERVER_USER,
+                  pass: process.env.EMAIL_SERVER_PASSWORD,
+                },
+              });
+
+              await transporter.sendMail({
+                from: `"Shoqan Alumni" <${process.env.EMAIL_SERVER_USER}>`,
+                to: connection.sender.email,
+                subject: "Connection Request Accepted",
+                html: `<p>Good news! <strong>${receiverName}</strong> accepted your connection request. You can contact them on Telegram: ${receiverTg}</p>`,
+              });
+
+              await transporter.sendMail({
+                from: `"Shoqan Alumni" <${process.env.EMAIL_SERVER_USER}>`,
+                to: connection.receiver.email,
+                subject: "Connection Request Accepted",
+                html: `<p>You accepted <strong>${senderName}</strong>'s connection request. Their Telegram is: ${senderTg}</p>`,
+              });
+            } catch (err) {
+              console.error("Failed to send acceptance emails", err);
             }
           } else if (action === "dec_") {
             // Decline Connection
