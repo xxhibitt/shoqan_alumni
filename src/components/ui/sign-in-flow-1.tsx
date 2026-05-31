@@ -254,6 +254,7 @@ export const SignInPage = ({ className }: SignInPageProps) => {
                         Verifying...
                       </motion.button>
                     </div>
+                    <p className="text-sm text-white/50 text-center mt-4">Didn't receive the code? Please make sure to check your Spam or Junk folder.</p>
                   </motion.div>
                 ) : (
                   <motion.div

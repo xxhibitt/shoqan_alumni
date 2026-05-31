@@ -113,18 +113,21 @@ export function SettingsModal() {
   };
 
   const handleLinkTelegram = async () => {
+    // 1. Open blank window synchronously to bypass popup blockers
+    const newWindow = window.open('about:blank', '_blank');
     setIsGeneratingTgToken(true);
     try {
       const res = await fetch("/api/telegram/generate-token", { method: "POST" });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.token) {
-          setTgToken(data.token);
-          window.location.href = `https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME}?start=${data.token}`;
-        }
+      const data = await res.json();
+      if (data.token) {
+        // 2. Safely redirect the already opened tab
+        if (newWindow) newWindow.location.href = `https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME}?start=${data.token}`;
+      } else {
+        if (newWindow) newWindow.close();
       }
     } catch (e) {
       console.error("Failed to generate token", e);
+      if (newWindow) newWindow.close();
     } finally {
       setIsGeneratingTgToken(false);
     }
