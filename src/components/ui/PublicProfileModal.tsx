@@ -269,7 +269,7 @@ if (telegramUsername.includes("t.me/")) {
               <div className="pt-8 border-t border-white/10 mt-6">
                 {isLoadingStatus ? (
                   <button disabled className="w-full flex justify-center items-center gap-2 px-5 py-3.5 bg-white/5 text-white/50 font-bold rounded-xl cursor-not-allowed">
-                    <div className="h-5 w-5 border-2 border-white/50 border-t-transparent rounded-full animate-spin" />
+                    <div className="h-5 w-5 border-2 border-white/50 border-t-transparent rounded-full animate-spin"></div>
                     Checking Status...
                   </button>
                 ) : connectionStatus === "APPROVED" ? (
@@ -300,7 +300,7 @@ if (telegramUsername.includes("t.me/")) {
                     className="w-full flex justify-center items-center gap-2 px-5 py-3.5 bg-white text-black hover:bg-white/90 disabled:opacity-50 font-bold rounded-xl transition-colors"
                   >
                     {isConnecting ? (
-                      <div className="h-5 w-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                      <div className="h-5 w-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
                     ) : (
                       <UserPlus className="h-5 w-5" />
                     )}
@@ -383,7 +383,7 @@ if (telegramUsername.includes("t.me/")) {
             </div>
           </div>
         </motion.div>
-      </div >
-    </AnimatePresence >
+      </div>
+    </AnimatePresence>
   );
 }
