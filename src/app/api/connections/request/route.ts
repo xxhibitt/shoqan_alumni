@@ -66,11 +66,29 @@ export async function POST(req: Request) {
           },
         });
 
+        const avatarUrl = sender.profile?.avatarUrl || "https://i.pravatar.cc/150";
+        const senderFullName = sender.profile ? `${sender.profile.firstName} ${sender.profile.lastName}` : "Someone";
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://shoqan-alumni.vercel.app";
+
+        const htmlContent = `
+  <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
+    <h2 style="color: #333;">New Connection Request</h2>
+    <p>${senderFullName} would like to join your network on Shoqan Alumni.</p>
+    <div style="text-align: center; margin: 20px 0;">
+      <img src="${avatarUrl}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;" alt="Avatar" />
+      <h3 style="margin: 10px 0 5px 0;">${senderFullName}</h3>
+    </div>
+    <div style="text-align: center;">
+      <a href="${appUrl}/connection?requestId=${request.id}" style="background-color: #10b981; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Review Request</a>
+    </div>
+  </div>
+        `;
+
         await transporter.sendMail({
           from: `"Shoqan Alumni" <${process.env.EMAIL_SERVER_USER}>`,
           to: receiver.email,
           subject: "New Connection Request",
-          html: `<p>User <strong>${senderName}</strong> wants to connect with you. Please <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/login">log in</a> to accept or decline.</p>`,
+          html: htmlContent,
         });
       } catch (err) {
         console.error("Failed to send connection email", err);
