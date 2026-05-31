@@ -120,7 +120,7 @@ export function SettingsModal() {
         const data = await res.json();
         if (data.token) {
           setTgToken(data.token);
-          window.open(`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME}?start=${data.token}`, '_blank');
+          window.location.href = `https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME}?start=${data.token}`;
         }
       }
     } catch (e) {

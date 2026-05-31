@@ -6,19 +6,16 @@ import { prisma } from "@/lib/prisma";
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!session || !session.user?.email) {
+      return NextResponse.json({ error: "Unauthorized or no email" }, { status: 401 });
     }
 
     // Generate a secure random token
     const token = crypto.randomUUID();
 
-    // @ts-ignore
-    const userId = session.user.id;
-
-    // Update the user with the new token
+    // Update the user with the new token using email
     await prisma.user.update({
-      where: { id: userId },
+      where: { email: session.user.email },
       data: { telegramAuthToken: token },
     });
 
