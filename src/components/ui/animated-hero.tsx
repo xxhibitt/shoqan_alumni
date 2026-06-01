@@ -30,7 +30,7 @@ function Hero() {
         <div className="flex gap-8 py-20 lg:py-32 items-center justify-center flex-col">
           <div className="flex gap-4 flex-col">
             <h1 className="text-5xl md:text-7xl max-w-2xl tracking-tighter text-center font-regular">
-              <span className="text-white font-extrabold">Your alumni network is</span>
+              <span className="text-slate-900 dark:text-white font-extrabold">Your alumni network is</span>
               <span className="relative flex w-full justify-center overflow-hidden text-center md:pb-4 md:pt-1 text-shoqan-primary">
                 &nbsp;
                 {titles.map((title, index) => (
@@ -57,7 +57,7 @@ function Hero() {
               </span>
             </h1>
 
-            <p className="text-lg md:text-xl leading-relaxed tracking-tight text-white/70 max-w-2xl text-center mx-auto mt-4">
+            <p className="text-lg md:text-xl leading-relaxed tracking-tight text-slate-600 dark:text-white/70 max-w-2xl text-center mx-auto mt-4">
               Connect with Shoqan Walikhanov graduates worldwide. Explore their paths to top universities, find mentors, and build your own legacy. The community is your greatest asset.
             </p>
           </div>
