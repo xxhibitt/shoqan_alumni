@@ -13,7 +13,7 @@ export default function DashboardLayout({
 }>) {
   return (
     <DashboardProvider>
-      <div className="flex flex-col md:flex-row min-h-screen bg-[#0a110e]">
+      <div className="flex flex-col md:flex-row min-h-screen bg-[#f4f7f5] dark:bg-[#0f1915] text-slate-900 dark:text-white">
         {/* Left Sidebar (Desktop) / Bottom Nav (Mobile) */}
         <Sidebar />
 
