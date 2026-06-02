@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { FeedGrid } from "@/components/ui/FeedGrid";
+import { FeedHeader } from "@/components/ui/FeedHeader";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { recommendProfiles, recommendUniversities } from "@/lib/recommendations";
@@ -33,10 +34,7 @@ export default async function FeedPage() {
 
   return (
     <div className="flex-1 p-4 md:p-8 overflow-y-auto w-full max-w-7xl mx-auto">
-      <header className="mb-10">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">For You</h1>
-        <p className="text-slate-600 dark:text-white/50">Discover alumni matching your interests and goals.</p>
-      </header>
+      <FeedHeader />
       
       <FeedGrid profiles={recommendedProfiles} recommendedUnis={recommendedUnis} />
     </div>
