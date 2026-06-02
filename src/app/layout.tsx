@@ -3,6 +3,7 @@ import "./globals.css";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { LanguageProvider } from "@/components/providers/LanguageProvider";
 
 export const metadata: Metadata = {
   title: "Shoqan Alumni",
@@ -24,7 +25,9 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <ToastProvider>
             <AuthProvider>
-              {children}
+              <LanguageProvider>
+                {children}
+              </LanguageProvider>
             </AuthProvider>
           </ToastProvider>
         </ThemeProvider>
