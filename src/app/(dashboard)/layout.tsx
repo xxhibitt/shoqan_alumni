@@ -5,7 +5,6 @@ import { CreatePostModal } from "@/components/ui/CreatePostModal";
 import { PostDetailModal } from "@/components/ui/PostDetailModal";
 import { PublicProfileModal } from "@/components/ui/PublicProfileModal";
 import { SearchDrawer } from "@/components/ui/SearchDrawer";
-import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 
 export default function DashboardLayout({
   children,
@@ -20,10 +19,6 @@ export default function DashboardLayout({
 
         {/* Main Content Area */}
         <main className="md:ml-[72px] flex-1 min-h-screen flex flex-col relative overflow-hidden pb-[72px] md:pb-0 w-full">
-          {/* Top Right Controls */}
-          <div className="w-full flex justify-end p-4 md:pt-8 md:pr-8">
-            <LanguageSwitcher />
-          </div>
           {children}
         </main>
 

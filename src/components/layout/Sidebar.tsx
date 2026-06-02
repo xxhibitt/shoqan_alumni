@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useDashboard } from "@/components/providers/DashboardProvider";
 import { useSession } from "next-auth/react";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -122,24 +123,28 @@ export function Sidebar() {
         </div>
       </nav>
 
-      {/* Bottom Profile Pill (Desktop) */}
-      <div className="hidden md:flex mt-auto pb-4 w-full px-3 justify-center group relative">
-        <button
-          onClick={() => openSettings()}
-          className="flex h-12 w-12 items-center justify-center rounded-[24px] bg-emerald-50 dark:bg-emerald-600/20 text-emerald-600 dark:text-emerald-500 transition-all hover:rounded-2xl hover:bg-emerald-600 hover:text-white border border-emerald-200 dark:border-emerald-500/30 overflow-hidden relative"
-        >
-          <span className="text-lg font-bold">U</span>
-          
-          <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity rounded-2xl">
-            <Settings className="h-5 w-5 text-white" />
-          </div>
-        </button>
+      {/* Bottom Controls (Desktop) */}
+      <div className="hidden md:flex mt-auto pb-4 w-full px-3 flex-col items-center gap-3">
+        <LanguageSwitcher />
         
-        {/* Tooltip */}
-        <div className="hidden md:block absolute left-[calc(100%+8px)] top-1/2 -translate-y-1/2 rounded-md bg-slate-900 dark:bg-[#1e1f22] px-3 py-1.5 text-sm font-semibold text-white shadow-xl opacity-0 translate-x-[-10px] group-hover:opacity-100 group-hover:translate-x-0 transition-all pointer-events-none z-50 whitespace-nowrap">
-          User Settings
-          {/* Arrow */}
-          <div className="absolute top-1/2 -left-1 -translate-y-1/2 border-y-4 border-y-transparent border-r-4 border-r-slate-900 dark:border-r-[#1e1f22]"></div>
+        <div className="flex justify-center group relative w-full">
+          <button
+            onClick={() => openSettings()}
+            className="flex h-12 w-12 items-center justify-center rounded-[24px] bg-emerald-50 dark:bg-emerald-600/20 text-emerald-600 dark:text-emerald-500 transition-all hover:rounded-2xl hover:bg-emerald-600 hover:text-white border border-emerald-200 dark:border-emerald-500/30 overflow-hidden relative"
+          >
+            <span className="text-lg font-bold">U</span>
+            
+            <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity rounded-2xl">
+              <Settings className="h-5 w-5 text-white" />
+            </div>
+          </button>
+          
+          {/* Tooltip */}
+          <div className="hidden md:block absolute left-[calc(100%+8px)] top-1/2 -translate-y-1/2 rounded-md bg-slate-900 dark:bg-[#1e1f22] px-3 py-1.5 text-sm font-semibold text-white shadow-xl opacity-0 translate-x-[-10px] group-hover:opacity-100 group-hover:translate-x-0 transition-all pointer-events-none z-50 whitespace-nowrap">
+            User Settings
+            {/* Arrow */}
+            <div className="absolute top-1/2 -left-1 -translate-y-1/2 border-y-4 border-y-transparent border-r-4 border-r-slate-900 dark:border-r-[#1e1f22]"></div>
+          </div>
         </div>
       </div>
     </aside>

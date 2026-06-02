@@ -5,27 +5,25 @@ import { useLanguage, Locale } from "@/components/providers/LanguageProvider";
 export function LanguageSwitcher() {
   const { locale, setLocale } = useLanguage();
 
-  const options: { value: Locale; label: string }[] = [
-    { value: "kz", label: "ҚАЗ" },
-    { value: "ru", label: "РУС" },
-    { value: "en", label: "ENG" },
-  ];
+  const cycleLanguage = () => {
+    if (locale === "en") setLocale("ru");
+    else if (locale === "ru") setLocale("kz");
+    else setLocale("en");
+  };
 
   return (
-    <div className="flex bg-gray-100 dark:bg-[#1a241f] rounded-lg p-1 border border-gray-200 dark:border-white/5 overflow-hidden">
-      {options.map((opt) => (
-        <button
-          key={opt.value}
-          onClick={() => setLocale(opt.value)}
-          className={`px-3 py-1.5 text-[10px] sm:text-xs font-bold rounded-md transition-colors whitespace-nowrap ${
-            locale === opt.value
-              ? "bg-white dark:bg-[#0f1915] text-emerald-600 dark:text-emerald-500 shadow-sm"
-              : "text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
-          }`}
-        >
-          {opt.label}
-        </button>
-      ))}
-    </div>
+    <button
+      onClick={cycleLanguage}
+      className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-full md:rounded-[24px] bg-gray-100 dark:bg-white/5 text-slate-500 dark:text-gray-400 transition-all hover:rounded-xl md:hover:rounded-2xl hover:bg-emerald-500 hover:text-white group relative"
+    >
+      <span className="text-xs font-bold uppercase tracking-wider">{locale}</span>
+
+      {/* Tooltip */}
+      <div className="hidden md:block absolute left-[calc(100%+8px)] top-1/2 -translate-y-1/2 rounded-md bg-slate-900 dark:bg-[#1e1f22] px-3 py-1.5 text-sm font-semibold text-white shadow-xl opacity-0 translate-x-[-10px] group-hover:opacity-100 group-hover:translate-x-0 transition-all pointer-events-none z-50 whitespace-nowrap">
+        Change Language
+        {/* Arrow */}
+        <div className="absolute top-1/2 -left-1 -translate-y-1/2 border-y-4 border-y-transparent border-r-4 border-r-slate-900 dark:border-r-[#1e1f22]"></div>
+      </div>
+    </button>
   );
 }
