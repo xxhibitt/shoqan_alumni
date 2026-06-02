@@ -266,23 +266,23 @@ export function SettingsModal() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-2">{userRoleContext === "ALUMNI" ? "Job Title" : "Intended Major"}</label>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-2">{userRoleContext === "ALUMNI" ? "Job Title" : t("settings.intendedMajor")}</label>
             <input type="text" value={role} onChange={(e) => setRole(e.target.value)} className="w-full bg-slate-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50" />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-2">{userRoleContext === "ALUMNI" ? "Attended University" : "Target University"}</label>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-2">{userRoleContext === "ALUMNI" ? "Attended University" : t("settings.targetUniversity")}</label>
             <input type="text" value={university} onChange={(e) => setUniversity(e.target.value)} placeholder="e.g. Nazarbayev University" className="w-full bg-slate-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50" />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-2">Extracurriculars / Tags (comma separated)</label>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-2">{t("settings.extracurriculars")}</label>
             <input type="text" value={activities} onChange={(e) => setActivities(e.target.value)} placeholder="e.g. Model UN, Debate Club, Tech Team" className="w-full bg-slate-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50" />
           </div>
 
           <div className="grid grid-cols-1 gap-6">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-2">National/International Awards (comma separated)</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-2">{t("settings.awards")}</label>
               <input type="text" value={awards} onChange={(e) => setAwards(e.target.value)} placeholder="e.g. IMO Gold, Google HashCode Finalist" className="w-full bg-slate-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50" />
             </div>
             {userRoleContext === "ALUMNI" && (
@@ -295,17 +295,17 @@ export function SettingsModal() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-2">SAT Score</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-2">{t("settings.satScore")}</label>
               <input type="number" value={satScore} onChange={(e) => setSatScore(e.target.value)} placeholder="e.g. 1500" className="w-full bg-slate-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50" />
             </div>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-2">IELTS Score</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-2">{t("settings.ieltsScore")}</label>
               <input type="number" step="0.5" value={ieltsScore} onChange={(e) => setIeltsScore(e.target.value)} placeholder="e.g. 7.5" className="w-full bg-slate-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50" />
             </div>
           </div>
 
           <button onClick={handleSave} disabled={isSaving} className="w-full md:w-auto px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-medium rounded-lg transition-colors shadow-lg shadow-emerald-900/20">
-            {isSaving ? "Saving..." : "Save Changes"}
+            {isSaving ? "Saving..." : t("settings.saveChanges")}
           </button>
         </div>
 
