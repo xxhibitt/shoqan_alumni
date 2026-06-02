@@ -21,10 +21,7 @@ export default function DashboardLayout({
         {/* Main Content Area */}
         <main className="md:ml-[72px] flex-1 min-h-screen flex flex-col relative overflow-hidden pb-[72px] md:pb-0 w-full">
           {/* Top Right Controls */}
-          <div className="absolute top-4 right-4 z-50 md:top-8 md:right-8 hidden md:block">
-            <LanguageSwitcher />
-          </div>
-          <div className="md:hidden flex justify-end p-4 pt-6 pb-0">
+          <div className="w-full flex justify-end p-4 md:pt-8 md:pr-8">
             <LanguageSwitcher />
           </div>
           {children}
