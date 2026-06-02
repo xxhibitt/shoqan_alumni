@@ -7,8 +7,10 @@ import { useDashboard } from "@/components/providers/DashboardProvider";
 import { ImageCropper } from "@/components/ui/ImageCropper";
 import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 export function SettingsModal() {
+  const { t } = useLanguage();
   const { isSettingsOpen, closeSettings, activeSettingsTab, setActiveSettingsTab, showToast } = useDashboard();
   const { theme, setTheme } = useTheme();
 
@@ -229,37 +231,37 @@ export function SettingsModal() {
 
   const renderProfileTab = () => (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.2 }}>
-      <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white mb-6">Profile Settings</h2>
+      <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white mb-6">{t("settings.title")}</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <div className="space-y-6">
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-2">Avatar</label>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-2">{t("settings.avatar")}</label>
             <input type="file" accept="image/png, image/jpeg, image/jpg, image/webp" ref={fileInputRefAvatar} className="hidden" onChange={(e) => handleFileChange(e, "avatar")} />
             <div className="flex items-center gap-3">
               <button onClick={() => fileInputRefAvatar.current?.click()} className="px-4 py-2 bg-slate-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg text-slate-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/5 transition flex items-center gap-2 text-sm md:text-base">
-                <Upload className="h-4 w-4" /> Upload Avatar
+                <Upload className="h-4 w-4" /> {t("settings.uploadAvatar")}
               </button>
-              {avatarUrl && <span className="text-xs text-emerald-600 dark:text-emerald-500 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> Uploaded</span>}
+              {avatarUrl && <span className="text-xs text-emerald-600 dark:text-emerald-500 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> {t("settings.uploaded")}</span>}
             </div>
           </div>
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-2">Banner</label>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-2">{t("settings.banner")}</label>
             <input type="file" accept="image/png, image/jpeg, image/jpg, image/webp" ref={fileInputRefBanner} className="hidden" onChange={(e) => handleFileChange(e, "banner")} />
             <div className="flex items-center gap-3">
               <button onClick={() => fileInputRefBanner.current?.click()} className="px-4 py-2 bg-slate-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg text-slate-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/5 transition flex items-center gap-2 text-sm md:text-base">
-                <Upload className="h-4 w-4" /> Upload Banner
+                <Upload className="h-4 w-4" /> {t("settings.uploadBanner")}
               </button>
-              {bannerUrl && <span className="text-xs text-emerald-600 dark:text-emerald-500 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> Uploaded</span>}
+              {bannerUrl && <span className="text-xs text-emerald-600 dark:text-emerald-500 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> {t("settings.uploaded")}</span>}
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-2">Display Name</label>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-2">{t("settings.displayName")}</label>
             <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} className="w-full bg-slate-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-emerald-500/50" />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-2">About Me / Bio</label>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-2">{t("settings.aboutMe")}</label>
             <textarea rows={3} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="A short bio about yourself..." className="w-full bg-slate-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 resize-none" />
           </div>
 
@@ -308,7 +310,7 @@ export function SettingsModal() {
         </div>
 
         <div className="flex flex-col pt-6 lg:pt-0">
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-4">Live Preview</label>
+          <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-white/60 mb-4">{t("settings.livePreview")}</label>
           <div className="w-full rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#0a110e] overflow-hidden sticky top-0 shadow-xl dark:shadow-2xl">
             <div className="h-24 md:h-32 w-full relative bg-gradient-to-tr from-emerald-100 dark:from-emerald-900/40 to-gray-50 dark:to-[#0a110e]">
               {bannerUrl ? <img src={bannerUrl} alt="Banner" className="w-full h-full object-cover" /> : <div className="absolute inset-0 bg-black/5 dark:bg-white/5" />}

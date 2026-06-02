@@ -3,9 +3,11 @@
 import { Briefcase, Calendar, Trash2, Bookmark } from "lucide-react";
 import { useState } from "react";
 import { useDashboard } from "@/components/providers/DashboardProvider";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { useRouter } from "next/navigation";
 
 export function ExploreFeed({ posts, isAdmin }: { posts: any[], isAdmin?: boolean }) {
+  const { t } = useLanguage();
   const { setSelectedPost } = useDashboard();
   const router = useRouter();
   const [savedStates, setSavedStates] = useState<Record<string, boolean>>({});
@@ -49,7 +51,7 @@ export function ExploreFeed({ posts, isAdmin }: { posts: any[], isAdmin?: boolea
     <section>
       <div className="flex items-center gap-3 mb-6">
         <Briefcase className="h-6 w-6 text-emerald-500" />
-        <h2 className="text-xl font-bold text-white">Hot Offers for You</h2>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t("explore.hotOffers")}</h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

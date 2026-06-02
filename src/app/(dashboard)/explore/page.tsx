@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { ExploreFeed } from "@/components/ui/ExploreFeed";
+import { ExploreHeader } from "@/components/ui/ExploreHeader";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { recommendPosts } from "@/lib/recommendations";
@@ -51,10 +52,7 @@ export default async function ExplorePage() {
 
   return (
     <div className="flex-1 p-8 overflow-y-auto">
-      <header className="mb-10 pl-[72px] md:pl-0">
-        <h1 className="text-3xl font-bold text-white mb-2">Explore</h1>
-        <p className="text-white/50">Top performers, exclusive offers, and announcements.</p>
-      </header>
+      <ExploreHeader />
 
       <ExploreFeed posts={serializedPosts} isAdmin={isAdmin} />
     </div>

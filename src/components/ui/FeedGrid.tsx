@@ -3,9 +3,11 @@
 import React, { useState, useMemo } from "react";
 import { Search, MapPin, GraduationCap, Bookmark } from "lucide-react";
 import { useDashboard } from "@/components/providers/DashboardProvider";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import Link from "next/link";
 
 export function FeedGrid({ profiles, recommendedUnis = [] }: { profiles: any[], recommendedUnis?: any[] }) {
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const { setSelectedProfile } = useDashboard();
 
@@ -26,8 +28,8 @@ export function FeedGrid({ profiles, recommendedUnis = [] }: { profiles: any[], 
       {/* Top Section: Profiles Similar to You */}
       <section className="mb-8 md:mb-12">
         <div className="flex items-center justify-between mb-4 md:mb-6">
-          <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white">Profiles Similar to You</h2>
-          <Link href="/explore" className="text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300">View All</Link>
+          <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white">{t("feed.similarProfiles")}</h2>
+          <Link href="/explore" className="text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300">{t("feed.viewAll")}</Link>
         </div>
         
         <div className="flex gap-4 overflow-x-auto pb-4 snap-x hide-scrollbar">
@@ -95,14 +97,14 @@ export function FeedGrid({ profiles, recommendedUnis = [] }: { profiles: any[], 
       {/* Bottom Section: Based on Your Searches/Interests */}
       <section>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 md:mb-6 gap-4">
-          <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white">All Alumni Directory</h2>
+          <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white">{t("feed.directory")}</h2>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-white/40" />
             <input 
               type="text" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Filter by university, tag, name..." 
+              placeholder={t("feed.searchPlaceholder")}
               className="bg-gray-100 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/30 focus:outline-none focus:border-emerald-500/50 w-[250px] md:w-[300px]"
             />
           </div>
