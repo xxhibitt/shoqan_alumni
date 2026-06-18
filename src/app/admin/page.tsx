@@ -20,10 +20,16 @@ export default async function AdminDashboardPage() {
       orderBy: { createdAt: "asc" },
     }),
     prisma.post.findMany({
-      where: { type: "announcement" }, // assuming announcements are stored as posts with this type
+      where: { type: "ANNOUNCEMENT" }, // Capitalized as requested
       orderBy: { createdAt: "desc" },
     }),
   ]);
 
-  return <AdminDashboardClient pendingUsers={pendingUsers} announcements={announcements} />;
+  return (
+    <AdminDashboardClient 
+      pendingUsers={pendingUsers} 
+      announcements={announcements} 
+      adminUser={session.user}
+    />
+  );
 }

@@ -26,13 +26,17 @@ type Post = {
 interface AdminDashboardClientProps {
   pendingUsers: UserProfile[];
   announcements: Post[];
+  adminUser: {
+    name?: string | null;
+    email?: string | null;
+  };
 }
 
 const STATUS_FILTERS = ["Live", "Archived", "All"] as const;
 type StatusFilterType = typeof STATUS_FILTERS[number];
 const DATE_PILLS = ["Today", "Last 7 Days", "Last 30 Days", "This Year"];
 
-export function AdminDashboardClient({ pendingUsers, announcements }: AdminDashboardClientProps) {
+export function AdminDashboardClient({ pendingUsers, announcements, adminUser }: AdminDashboardClientProps) {
   const [activeTab, setActiveTab] = useState<"moderation" | "announcements">("moderation");
 
   // Announcements Filter State
@@ -69,7 +73,12 @@ export function AdminDashboardClient({ pendingUsers, announcements }: AdminDashb
   return (
     <div className="min-h-screen bg-[#f4f7f5] dark:bg-[#0f1915] text-slate-900 dark:text-white p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 tracking-tight">Admin Dashboard</h1>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+          <p className="text-sm text-slate-400 mt-2">
+            Logged in as: <span className="font-medium text-slate-300">{adminUser?.name || "Admin"}</span> ({adminUser?.email})
+          </p>
+        </div>
 
         {/* Tab Switcher */}
         <div className="flex items-center gap-6 border-b border-slate-200 dark:border-white/10 mb-8">
