@@ -20,7 +20,7 @@ type Post = {
   content: string;
   createdAt: Date;
   type: string;
-  // Map this or mock status if needed, assuming "Live" for all real ones for now
+  isArchived: boolean;
 };
 
 interface AdminDashboardClientProps {
@@ -49,15 +49,19 @@ export function AdminDashboardClient({ pendingUsers, announcements, adminUser }:
     id: post.id,
     title: post.title,
     body: post.content,
-    // Assuming everything is "Live" unless it's older than 30 days as a mock logic, or just "Live"
-    status: new Date(post.createdAt).getTime() < Date.now() - 30 * 24 * 60 * 60 * 1000 ? "Archived" : "Live",
+    status: post.isArchived ? "Archived" : "Live",
     date: post.createdAt,
+    isArchived: post.isArchived,
   }));
 
   const filteredAnnouncements = formattedAnnouncements.filter((announcement) => {
-    if (statusFilter !== "All" && announcement.status !== statusFilter) {
+    if (statusFilter === "Live" && announcement.isArchived) {
       return false;
     }
+    if (statusFilter === "Archived" && !announcement.isArchived) {
+      return false;
+    }
+    
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       if (

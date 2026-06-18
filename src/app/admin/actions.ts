@@ -74,3 +74,25 @@ export async function rejectUser(userId: string) {
 
   revalidatePath("/admin");
 }
+
+export async function deleteAnnouncement(postId: string) {
+  const session = await getServerSession(authOptions);
+  
+  if (session?.user?.role !== "ADMIN") {
+    throw new Error("Unauthorized");
+  }
+
+  try {
+    // Soft Delete Pattern: Change status to archived instead of a hard prisma.post.delete()
+    await prisma.post.update({
+      where: { id: postId },
+      data: { isArchived: true },
+    });
+
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to archive announcement:", error);
+    return { success: false, error: "Failed to archive announcement" };
+  }
+}

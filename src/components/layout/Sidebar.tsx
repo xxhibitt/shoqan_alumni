@@ -1,6 +1,6 @@
 "use client";
 
-import { House, Telescope, Bookmark, Settings, Plus, Search } from "lucide-react";
+import { House, Telescope, Bookmark, Settings, Plus, Search, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useDashboard } from "@/components/providers/DashboardProvider";
@@ -70,6 +70,34 @@ export function Sidebar() {
             </Link>
           );
         })}
+
+        {/* Admin Portal Link */}
+        {isAdmin && (
+          <>
+            <div className="hidden md:block w-8 h-[2px] bg-emerald-500/20 rounded-full mx-auto my-2" />
+            <Link
+              href="/admin"
+              className="group relative flex justify-center py-2 md:py-0 flex-1 md:flex-none md:w-full h-full md:h-auto items-center"
+            >
+              <div className={`hidden md:block absolute left-[-12px] top-1/2 -translate-y-1/2 w-1 bg-emerald-500 rounded-r-full transition-all duration-300 ${pathname.startsWith("/admin") ? 'h-10' : 'h-0 group-hover:h-5'}`} style={{ height: pathname.startsWith("/admin") ? '40px' : '' }} />
+              <div
+                className={`flex h-10 w-10 md:h-12 md:w-12 items-center justify-center transition-all duration-300 ${
+                  pathname.startsWith("/admin")
+                    ? "rounded-xl md:rounded-2xl bg-emerald-600 text-white shadow-lg shadow-emerald-500/30"
+                    : "rounded-full md:rounded-[24px] bg-emerald-500/10 text-emerald-600 hover:rounded-xl md:hover:rounded-2xl hover:bg-emerald-500 hover:text-white"
+                }`}
+              >
+                <ShieldAlert className="h-5 w-5 md:h-6 md:w-6" />
+              </div>
+
+              {/* Tooltip */}
+              <div className="hidden md:block absolute left-[calc(100%+8px)] top-1/2 -translate-y-1/2 rounded-md bg-slate-900 dark:bg-[#1e1f22] px-3 py-1.5 text-sm font-semibold text-white shadow-xl opacity-0 translate-x-[-10px] group-hover:opacity-100 group-hover:translate-x-0 transition-all pointer-events-none z-50 whitespace-nowrap">
+                Admin Portal
+                <div className="absolute top-1/2 -left-1 -translate-y-1/2 border-y-4 border-y-transparent border-r-4 border-r-slate-900 dark:border-r-[#1e1f22]"></div>
+              </div>
+            </Link>
+          </>
+        )}
 
         {/* Search Drawer Toggle */}
         <button
