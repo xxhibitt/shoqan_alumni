@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { approveUser, rejectUser } from "@/app/admin/actions";
 import { Search, Calendar, ChevronRight, CheckCircle2, Archive } from "lucide-react";
 import { HighlightedText } from "@/components/ui/highlighted-text";
@@ -34,7 +34,13 @@ interface AdminDashboardClientProps {
 
 const STATUS_FILTERS = ["Live", "Archived", "All"] as const;
 type StatusFilterType = typeof STATUS_FILTERS[number];
-const DATE_PILLS = ["Today", "Last 7 Days", "Last 30 Days", "This Year"];
+const DATE_PILLS = [
+  { label: "All Time", value: "ALL" },
+  { label: "Today", value: "TODAY" },
+  { label: "Last 7 Days", value: "7DAYS" },
+  { label: "Last 30 Days", value: "30DAYS" },
+  { label: "This Year", value: "YEAR" },
+];
 
 export function AdminDashboardClient({ pendingUsers, announcements, adminUser }: AdminDashboardClientProps) {
   const [activeTab, setActiveTab] = useState<"moderation" | "announcements">("moderation");
@@ -42,7 +48,7 @@ export function AdminDashboardClient({ pendingUsers, announcements, adminUser }:
   // Announcements Filter State
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilterType>("All");
-  const [activeDateFilter, setActiveDateFilter] = useState<string>("This Year");
+  const [dateFilter, setDateFilter] = useState("ALL");
 
   // Format real data to fit the UI mock
   const formattedAnnouncements = announcements.map((post) => ({
@@ -54,25 +60,36 @@ export function AdminDashboardClient({ pendingUsers, announcements, adminUser }:
     isArchived: post.isArchived,
   }));
 
-  const filteredAnnouncements = formattedAnnouncements.filter((announcement) => {
-    if (statusFilter === "Live" && announcement.isArchived) {
-      return false;
-    }
-    if (statusFilter === "Archived" && !announcement.isArchived) {
-      return false;
-    }
-    
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      if (
-        !announcement.title.toLowerCase().includes(q) &&
-        !announcement.body.toLowerCase().includes(q)
-      ) {
+  const filteredAnnouncements = useMemo(() => {
+    return formattedAnnouncements.filter((announcement) => {
+      // Status Filter
+      if (statusFilter === "Live" && announcement.isArchived) {
         return false;
       }
-    }
-    return true;
-  });
+      if (statusFilter === "Archived" && !announcement.isArchived) {
+        return false;
+      }
+      
+      // Date Filter
+      const postDate = new Date(announcement.date).getTime();
+      if (dateFilter === "TODAY" && postDate < new Date().setHours(0, 0, 0, 0)) return false;
+      if (dateFilter === "7DAYS" && postDate < Date.now() - 7 * 24 * 60 * 60 * 1000) return false;
+      if (dateFilter === "30DAYS" && postDate < Date.now() - 30 * 24 * 60 * 60 * 1000) return false;
+      if (dateFilter === "YEAR" && postDate < new Date(new Date().getFullYear(), 0, 1).getTime()) return false;
+      
+      // Search Query Filter
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        if (
+          !announcement.title.toLowerCase().includes(q) &&
+          !announcement.body.toLowerCase().includes(q)
+        ) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [formattedAnnouncements, statusFilter, dateFilter, searchQuery]);
 
   return (
     <div className="min-h-screen bg-[#f4f7f5] dark:bg-[#0f1915] text-slate-900 dark:text-white p-8">
@@ -213,15 +230,15 @@ export function AdminDashboardClient({ pendingUsers, announcements, adminUser }:
               <div className="flex flex-wrap items-center gap-2">
                 {DATE_PILLS.map((pill) => (
                   <button
-                    key={pill}
-                    onClick={() => setActiveDateFilter(pill)}
+                    key={pill.value}
+                    onClick={() => setDateFilter(pill.value)}
                     className={`px-3 py-1 text-xs font-medium rounded-full border transition-colors ${
-                      activeDateFilter === pill
+                      dateFilter === pill.value
                         ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-400"
                         : "border-white/10 bg-black/20 text-slate-400 hover:border-white/20 hover:text-slate-200"
                     }`}
                   >
-                    {pill}
+                    {pill.label}
                   </button>
                 ))}
                 

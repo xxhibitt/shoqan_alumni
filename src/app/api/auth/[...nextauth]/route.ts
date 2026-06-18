@@ -13,7 +13,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         console.log("OTP Login Attempt for:", credentials?.email);
-        
+
         if (!credentials?.email || !credentials?.otp) {
           throw new Error("Missing email or OTP");
         }
@@ -67,12 +67,15 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 дней (сессия не слетит месяц)
   },
   pages: {
     signIn: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET || "development-secret-override",
   debug: true,
+
+
 };
 
 const handler = NextAuth(authOptions);
