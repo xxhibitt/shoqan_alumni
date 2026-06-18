@@ -13,6 +13,12 @@ enum Role {
   ADMIN
 }
 
+enum UserStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum ConnectionStatus {
   PENDING
   APPROVED
@@ -26,6 +32,7 @@ model User {
   email        String   @unique
   passwordHash String
   role         Role     @default(STUDENT)
+  status       UserStatus @default(PENDING)
   isVerified   Boolean  @default(false)
   otpCode      String?
   otpExpires          DateTime?

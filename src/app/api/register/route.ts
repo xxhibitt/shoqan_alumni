@@ -34,6 +34,7 @@ export async function POST(req: Request) {
         email,
         passwordHash,
         role: "STUDENT", 
+        status: "PENDING",
         isVerified: false,
         profile: {
           create: {
