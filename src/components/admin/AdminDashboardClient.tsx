@@ -62,11 +62,11 @@ export function AdminDashboardClient({ pendingUsers, announcements, adminUser }:
 
   const filteredAnnouncements = useMemo(() => {
     return formattedAnnouncements.filter((announcement) => {
-      // Status Filter
-      if (statusFilter === "Live" && announcement.isArchived) {
+      // Status Filter (Explicit boolean checks)
+      if (statusFilter === "Live" && announcement.isArchived === true) {
         return false;
       }
-      if (statusFilter === "Archived" && !announcement.isArchived) {
+      if (statusFilter === "Archived" && announcement.isArchived !== true) {
         return false;
       }
       

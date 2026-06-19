@@ -90,6 +90,7 @@ export async function deleteAnnouncement(postId: string) {
     });
 
     revalidatePath("/admin");
+    revalidatePath("/explore");
     return { success: true };
   } catch (error) {
     console.error("Failed to archive announcement:", error);
