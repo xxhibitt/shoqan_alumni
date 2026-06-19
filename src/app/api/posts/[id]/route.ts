@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 export async function DELETE(
   req: Request,
@@ -15,9 +16,14 @@ export async function DELETE(
 
     const { id } = await params;
 
-    await prisma.post.delete({
+    // Soft Delete Pattern: Update status instead of a hard delete
+    await prisma.post.update({
       where: { id },
+      data: { isArchived: true }
     });
+
+    revalidatePath("/explore");
+    revalidatePath("/admin");
 
     return NextResponse.json({ success: true });
   } catch (error) {

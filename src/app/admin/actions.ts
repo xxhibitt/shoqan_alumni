@@ -8,7 +8,7 @@ import nodemailer from "nodemailer";
 
 export async function approveUser(userId: string) {
   const session = await getServerSession(authOptions);
-  
+
   // Extra security check for the server action
   if (session?.user?.role !== "ADMIN") {
     throw new Error("Unauthorized");
@@ -51,7 +51,7 @@ export async function approveUser(userId: string) {
       subject: "Welcome to Shoqan Alumni – Your Profile is Approved!",
       html: htmlContent,
     });
-    
+
     console.log(`[Email Sent] Approval email successfully sent to ${email}`);
   } catch (error) {
     console.error(`Failed to send approval email to ${email}:`, error);
@@ -62,7 +62,7 @@ export async function approveUser(userId: string) {
 
 export async function rejectUser(userId: string) {
   const session = await getServerSession(authOptions);
-  
+
   if (session?.user?.role !== "ADMIN") {
     throw new Error("Unauthorized");
   }
@@ -77,7 +77,7 @@ export async function rejectUser(userId: string) {
 
 export async function deleteAnnouncement(postId: string) {
   const session = await getServerSession(authOptions);
-  
+
   if (session?.user?.role !== "ADMIN") {
     throw new Error("Unauthorized");
   }

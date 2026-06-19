@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { approveUser, rejectUser } from "@/app/admin/actions";
-import { Search, Calendar, ChevronRight, CheckCircle2, Archive } from "lucide-react";
+import React, { useState, useMemo, useTransition } from "react";
+import { approveUser, rejectUser, deleteAnnouncement } from "@/app/admin/actions";
+import { Search, Calendar, ChevronRight, CheckCircle2, Archive, Trash2 } from "lucide-react";
 import { HighlightedText } from "@/components/ui/highlighted-text";
 
 type UserProfile = {
@@ -44,6 +44,7 @@ const DATE_PILLS = [
 
 export function AdminDashboardClient({ pendingUsers, announcements, adminUser }: AdminDashboardClientProps) {
   const [activeTab, setActiveTab] = useState<"moderation" | "announcements">("moderation");
+  const [isPending, startTransition] = useTransition();
 
   // Announcements Filter State
   const [searchQuery, setSearchQuery] = useState("");
@@ -267,20 +268,37 @@ export function AdminDashboardClient({ pendingUsers, announcements, adminUser }:
                       <h3 className="font-semibold text-lg text-slate-100">
                         <HighlightedText text={announcement.title} highlight={searchQuery} />
                       </h3>
-                      <span
-                        className={`flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${
-                          announcement.status === "Live"
-                            ? "bg-emerald-500/10 text-emerald-400"
-                            : "bg-slate-500/10 text-slate-400"
-                        }`}
-                      >
-                        {announcement.status === "Live" ? (
-                          <CheckCircle2 className="w-3 h-3" />
-                        ) : (
-                          <Archive className="w-3 h-3" />
+                      <div className="flex items-center gap-2">
+                        {!announcement.isArchived && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              startTransition(() => {
+                                deleteAnnouncement(announcement.id);
+                              });
+                            }}
+                            disabled={isPending}
+                            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                            title="Archive Announcement"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         )}
-                        {announcement.status}
-                      </span>
+                        <span
+                          className={`flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${
+                            announcement.status === "Live"
+                              ? "bg-emerald-500/10 text-emerald-400"
+                              : "bg-slate-500/10 text-slate-400"
+                          }`}
+                        >
+                          {announcement.status === "Live" ? (
+                            <CheckCircle2 className="w-3 h-3" />
+                          ) : (
+                            <Archive className="w-3 h-3" />
+                          )}
+                          {announcement.status}
+                        </span>
+                      </div>
                     </div>
                     
                     <p className="text-sm text-slate-400 leading-relaxed mb-4 line-clamp-2">
