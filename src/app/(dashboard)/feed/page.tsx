@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { FeedGrid } from "@/components/ui/FeedGrid";
-import { FeedHeader } from "@/components/ui/FeedHeader";
+import { FeedClient } from "@/components/feed/FeedClient";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { recommendProfiles, recommendUniversities } from "@/lib/recommendations";
@@ -32,11 +31,5 @@ export default async function FeedPage() {
     }
   }
 
-  return (
-    <div className="flex-1 p-4 md:p-8 overflow-y-auto w-full max-w-7xl mx-auto">
-      <FeedHeader />
-      
-      <FeedGrid profiles={recommendedProfiles} recommendedUnis={recommendedUnis} />
-    </div>
-  );
+  return <FeedClient profiles={recommendedProfiles} recommendedUnis={recommendedUnis} />;
 }
