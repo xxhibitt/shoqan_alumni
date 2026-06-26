@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { ExploreFeed } from "@/components/ui/ExploreFeed";
-import { ExploreHeader } from "@/components/ui/ExploreHeader";
+import { ExploreClient } from "@/components/explore/ExploreClient";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { recommendPosts } from "@/lib/recommendations";
@@ -15,6 +14,7 @@ export default async function ExplorePage() {
   const userId = session?.user?.id;
 
   const posts = await prisma.post.findMany({
+    where: { isArchived: false },
     orderBy: { createdAt: "desc" },
     include: {
       tags: true,
@@ -50,11 +50,5 @@ export default async function ExplorePage() {
     updatedAt: post.updatedAt.toISOString(),
   }));
 
-  return (
-    <div className="flex-1 p-8 overflow-y-auto">
-      <ExploreHeader />
-
-      <ExploreFeed posts={serializedPosts} isAdmin={isAdmin} />
-    </div>
-  );
+  return <ExploreClient announcements={serializedPosts} isAdmin={isAdmin} />;
 }
