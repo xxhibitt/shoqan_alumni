@@ -68,6 +68,8 @@ export async function submitOnboardingData(formData: any) {
     // Map role strictly to schema enum
     const dbRole = role === "ALUMNUS" ? "ALUMNI" : "STUDENT";
 
+    console.log("Attempting Prisma Save with data:", { ...formData, parsedGradYear, parsedSat, parsedIelts, parsedGpa });
+
     // Update User (Role and Telegram)
     // We set status to PENDING so they appear in the Admin moderation queue
     await prisma.user.update({
@@ -145,7 +147,7 @@ export async function submitOnboardingData(formData: any) {
 
     return { success: true, redirectTo: "/pending" };
   } catch (error: any) {
-    console.error("Failed to submit onboarding data:", error);
+    console.error("Prisma Error:", error);
     return { success: false, error: error.message || "Internal Server Error" };
   }
 }

@@ -158,14 +158,20 @@ export default function OnboardingPage() {
       bannerUrl,
     };
 
-    const res = await submitOnboardingData(payload);
+    try {
+      const res = await submitOnboardingData(payload);
 
-    if (res.success && res.redirectTo) {
-      router.push(res.redirectTo);
-      router.refresh();
-    } else {
-      console.error(res.error);
-      alert(res.error || "Failed to submit profile. Please try again.");
+      if (res.success && res.redirectTo) {
+        router.push(res.redirectTo);
+        router.refresh();
+      } else {
+        console.error("Server Action Error:", res.error);
+        alert(res.error || "Failed to submit profile. Please try again.");
+      }
+    } catch (error) {
+      console.error("Onboarding Client Error:", error);
+      alert("Failed to save. Check console.");
+    } finally {
       setIsSubmitting(false);
     }
   };
