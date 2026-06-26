@@ -392,22 +392,22 @@ export default function OnboardingPage() {
                   {isSearchingUni && (
                     <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500 animate-spin" />
                   )}
-                </div>
 
-                {/* Dropdown */}
-                {showDropdown && universityResults.length > 0 && (
-                  <ul className="absolute z-50 w-full mt-1 bg-[#1a1a1a] border border-white/10 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                    {universityResults.map((uni, idx) => (
-                      <li
-                        key={idx}
-                        onClick={() => selectUniversity(uni)}
-                        className="px-4 py-3 hover:bg-emerald-500/10 cursor-pointer text-sm text-slate-300 transition-colors border-b border-white/5 last:border-0"
-                      >
-                        {uni}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                  {/* Dropdown */}
+                  {showDropdown && universityResults.length > 0 && (
+                    <ul className="absolute top-full left-0 w-full mt-1 bg-[#1a1a1a] border border-white/10 rounded-md shadow-2xl z-[9999] max-h-60 overflow-y-auto block">
+                      {universityResults.map((uni, idx) => (
+                        <li
+                          key={idx}
+                          onClick={() => selectUniversity(uni)}
+                          className="px-4 py-3 hover:bg-emerald-500/10 cursor-pointer text-sm text-slate-300 transition-colors border-b border-white/5 last:border-0"
+                        >
+                          {uni}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-2">
