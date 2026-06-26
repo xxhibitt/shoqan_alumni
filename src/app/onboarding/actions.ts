@@ -97,6 +97,12 @@ export async function submitOnboardingData(formData: any) {
         awards: awardsList,
         achievements: extraList.length > 0 ? { extracurriculars: extraList } : {},
         socialLinks: linkedin ? { linkedin } : {},
+        tags: {
+          connectOrCreate: extraList.map((tag: string) => ({
+            where: { name: tag },
+            create: { name: tag },
+          })),
+        },
       },
       update: {
         firstName,
@@ -110,6 +116,13 @@ export async function submitOnboardingData(formData: any) {
         awards: awardsList,
         achievements: extraList.length > 0 ? { extracurriculars: extraList } : {},
         socialLinks: linkedin ? { linkedin } : {},
+        tags: {
+          set: [],
+          connectOrCreate: extraList.map((tag: string) => ({
+            where: { name: tag },
+            create: { name: tag },
+          })),
+        },
       },
     });
 
