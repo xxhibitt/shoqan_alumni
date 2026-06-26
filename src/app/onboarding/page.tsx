@@ -162,8 +162,8 @@ export default function OnboardingPage() {
       const res = await submitOnboardingData(payload);
 
       if (res.success && res.redirectTo) {
-        router.push(res.redirectTo);
-        router.refresh();
+        window.location.href = res.redirectTo; // Nuclear failsafe redirect
+        return;
       } else {
         console.error("Server Action Error:", res.error);
         alert(res.error || "Failed to submit profile. Please try again.");

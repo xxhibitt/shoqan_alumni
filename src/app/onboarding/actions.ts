@@ -158,6 +158,32 @@ export async function submitOnboardingData(formData: any) {
       });
     }
 
+    // Notification Trigger for Admins
+    const admins = await prisma.user.findMany({
+      where: { role: 'ADMIN', moderatorChatId: { not: null } }
+    });
+
+    if (admins.length > 0) {
+      const message = `🚨 New Profile Pending Approval\n\nName: ${firstName} ${lastName}\nRole: ${dbRole}\nUniversity: ${universityName || 'Not specified'}\n\nPlease review in the Admin Dashboard.`;
+      
+      for (const admin of admins) {
+        if (admin.moderatorChatId) {
+          try {
+            await fetch(`https://api.telegram.org/bot${process.env.ADMIN_TELEGRAM_BOT_TOKEN}/sendMessage`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                chat_id: admin.moderatorChatId,
+                text: message,
+              }),
+            });
+          } catch (e) {
+            console.error("Failed to notify admin", e);
+          }
+        }
+      }
+    }
+
     return { success: true, redirectTo: "/pending" };
   } catch (error: any) {
     console.error("Prisma Error:", error);
