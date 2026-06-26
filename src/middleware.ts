@@ -1,47 +1,39 @@
-import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
-export default withAuth(
-  function middleware(req) {
-    const isAuth = !!req.nextauth.token;
-    const isAuthPage =
-      req.nextUrl.pathname.startsWith("/login") ||
-      req.nextUrl.pathname.startsWith("/register");
+export async function middleware(req: NextRequest) {
+  // Fetch the token strictly using the NextAuth secret
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
-    if (isAuthPage) {
-      if (isAuth) {
-        return NextResponse.redirect(new URL("/explore", req.url));
-      }
-      return null;
-    }
-  },
-  {
-    callbacks: {
-      authorized: ({ req, token }) => {
-        const isAuthPage =
-          req.nextUrl.pathname.startsWith("/login") ||
-          req.nextUrl.pathname.startsWith("/register");
-          
-        if (isAuthPage) {
-          return true;
-        }
+  const { pathname } = req.nextUrl;
 
-        return !!token;
-      },
-    },
-    pages: {
-      signIn: "/login",
-    },
+  // Define auth pages (pages that should redirect to dashboard if already logged in)
+  const isAuthPage =
+    pathname === "/" ||
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register") ||
+    pathname.startsWith("/landing");
+
+  // Define protected pages (pages that require a login)
+  const isProtectedPage =
+    pathname.startsWith("/explore") ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/feed");
+
+  // Rule 1: If token exists AND the user is trying to access an auth page, redirect away
+  if (token && isAuthPage) {
+    return NextResponse.redirect(new URL("/explore", req.url));
   }
-);
+
+  // Rule 2: If NO token exists AND the user is trying to access a protected page, bounce to login
+  if (!token && isProtectedPage) {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
-  matcher: [
-    "/login",
-    "/register",
-    "/explore/:path*",
-    "/admin/:path*",
-    "/feed/:path*",
-    "/connection/:path*",
-  ],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };
