@@ -238,12 +238,12 @@ export default function OnboardingPage() {
 
                 {/* Dropdown */}
                 {showDropdown && universityResults.length > 0 && (
-                  <ul className="absolute z-20 w-full mt-2 bg-[#1a2c24] border border-emerald-500/30 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                  <ul className="absolute z-50 w-full mt-1 bg-[#1a1a1a] border border-white/10 rounded-md shadow-lg max-h-60 overflow-y-auto">
                     {universityResults.map((uni, idx) => (
                       <li
                         key={idx}
                         onClick={() => selectUniversity(uni)}
-                        className="px-4 py-3 hover:bg-emerald-500/20 cursor-pointer text-sm text-slate-300 transition-colors border-b border-white/5 last:border-0"
+                        className="px-4 py-3 hover:bg-emerald-500/10 cursor-pointer text-sm text-slate-300 transition-colors border-b border-white/5 last:border-0"
                       >
                         {uni}
                       </li>
@@ -314,8 +314,15 @@ export default function OnboardingPage() {
                 <input
                   type="number"
                   name="satScore"
+                  min="400"
+                  max="1600"
+                  step="10"
                   value={formData.satScore}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    if (val > 1600) e.target.value = "1600";
+                    handleChange(e);
+                  }}
                   placeholder="e.g. 1550"
                   className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all"
                 />
@@ -323,15 +330,25 @@ export default function OnboardingPage() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-300">IELTS Score</label>
-                <input
-                  type="number"
-                  step="0.5"
+                <select
                   name="ieltsScore"
                   value={formData.ieltsScore}
                   onChange={handleChange}
-                  placeholder="e.g. 8.0"
-                  className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all"
-                />
+                  className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all appearance-none"
+                >
+                  <option value="">Not Taken</option>
+                  <option value="4.0">4.0</option>
+                  <option value="4.5">4.5</option>
+                  <option value="5.0">5.0</option>
+                  <option value="5.5">5.5</option>
+                  <option value="6.0">6.0</option>
+                  <option value="6.5">6.5</option>
+                  <option value="7.0">7.0</option>
+                  <option value="7.5">7.5</option>
+                  <option value="8.0">8.0</option>
+                  <option value="8.5">8.5</option>
+                  <option value="9.0">9.0</option>
+                </select>
               </div>
 
               {/* Alumnus Only: Mentoring Switch */}
