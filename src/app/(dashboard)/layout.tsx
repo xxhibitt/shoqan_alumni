@@ -1,10 +1,12 @@
+import dynamic from "next/dynamic";
 import { DashboardProvider } from "@/components/providers/DashboardProvider";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { SettingsModal } from "@/components/ui/SettingsModal";
-import { CreatePostModal } from "@/components/ui/CreatePostModal";
-import { PostDetailModal } from "@/components/ui/PostDetailModal";
-import { PublicProfileModal } from "@/components/ui/PublicProfileModal";
-import { SearchDrawer } from "@/components/ui/SearchDrawer";
+
+const Sidebar = dynamic(() => import("@/components/layout/Sidebar").then(mod => mod.Sidebar), { ssr: false });
+const SettingsModal = dynamic(() => import("@/components/ui/SettingsModal").then(mod => mod.SettingsModal), { ssr: false });
+const CreatePostModal = dynamic(() => import("@/components/ui/CreatePostModal").then(mod => mod.CreatePostModal), { ssr: false });
+const PostDetailModal = dynamic(() => import("@/components/ui/PostDetailModal").then(mod => mod.PostDetailModal), { ssr: false });
+const PublicProfileModal = dynamic(() => import("@/components/ui/PublicProfileModal").then(mod => mod.PublicProfileModal), { ssr: false });
+const SearchDrawer = dynamic(() => import("@/components/ui/SearchDrawer").then(mod => mod.SearchDrawer), { ssr: false });
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
