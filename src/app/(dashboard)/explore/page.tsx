@@ -1,8 +1,14 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // Проверь правильность пути
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { ExploreClient } from "@/components/explore/ExploreClient"; // Проверь правильность пути
+import dynamic from "next/dynamic";
+
+// Тот самый "Ядерный вариант": строго запрещаем серверу рендерить этот компонент
+const ExploreClient = dynamic(
+  () => import("@/components/explore/ExploreClient").then((mod) => mod.ExploreClient),
+  { ssr: false }
+);
 
 export default async function ExplorePage() {
   // 1. Проверяем сессию

@@ -23,7 +23,7 @@ export async function middleware(req: NextRequest) {
 
   // Rule 1: If token exists AND the user is trying to access an auth page, redirect away
   if (token && isAuthPage) {
-    return NextResponse.redirect(new URL("/explore", req.url));
+    return NextResponse.redirect(new URL("/feed", req.url));
   }
 
   // Rule 2: If NO token exists AND the user is trying to access a protected page, bounce to login
