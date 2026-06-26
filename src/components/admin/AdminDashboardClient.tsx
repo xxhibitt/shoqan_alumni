@@ -32,8 +32,6 @@ interface AdminDashboardClientProps {
   };
 }
 
-const STATUS_FILTERS = ["Live", "Archived", "All"] as const;
-type StatusFilterType = typeof STATUS_FILTERS[number];
 const DATE_PILLS = [
   { label: "All Time", value: "ALL" },
   { label: "Today", value: "TODAY" },
@@ -48,7 +46,6 @@ export function AdminDashboardClient({ pendingUsers, announcements, adminUser }:
 
   // Announcements Filter State
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<StatusFilterType>("All");
   const [dateFilter, setDateFilter] = useState("ALL");
 
   // Format real data to fit the UI mock
@@ -56,21 +53,11 @@ export function AdminDashboardClient({ pendingUsers, announcements, adminUser }:
     id: post.id,
     title: post.title,
     body: post.content,
-    status: post.isArchived ? "Archived" : "Live",
     date: post.createdAt,
-    isArchived: post.isArchived,
   }));
 
   const filteredAnnouncements = useMemo(() => {
     return formattedAnnouncements.filter((announcement) => {
-      // Status Filter (Explicit boolean checks)
-      if (statusFilter === "Live" && announcement.isArchived === true) {
-        return false;
-      }
-      if (statusFilter === "Archived" && announcement.isArchived !== true) {
-        return false;
-      }
-      
       // Date Filter
       const postDate = new Date(announcement.date).getTime();
       if (dateFilter === "TODAY" && postDate < new Date().setHours(0, 0, 0, 0)) return false;
@@ -90,7 +77,7 @@ export function AdminDashboardClient({ pendingUsers, announcements, adminUser }:
       }
       return true;
     });
-  }, [formattedAnnouncements, statusFilter, dateFilter, searchQuery]);
+  }, [formattedAnnouncements, dateFilter, searchQuery]);
 
   return (
     <div className="min-h-screen bg-[#f4f7f5] dark:bg-[#0f1915] text-slate-900 dark:text-white p-8">
@@ -208,23 +195,6 @@ export function AdminDashboardClient({ pendingUsers, announcements, adminUser }:
                     className="w-full bg-black/40 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all placeholder:text-slate-500"
                   />
                 </div>
-
-                {/* Segmented Control */}
-                <div className="flex items-center bg-black/40 border border-white/10 p-1 rounded-lg shrink-0">
-                  {STATUS_FILTERS.map((status) => (
-                    <button
-                      key={status}
-                      onClick={() => setStatusFilter(status)}
-                      className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                        statusFilter === status
-                          ? "bg-[#1a2c24] text-emerald-400 shadow-sm"
-                          : "text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      {status}
-                    </button>
-                  ))}
-                </div>
               </div>
 
               {/* Date Presets (Pills) */}
@@ -262,7 +232,6 @@ export function AdminDashboardClient({ pendingUsers, announcements, adminUser }:
                         <HighlightedText text={announcement.title} highlight={searchQuery} />
                       </h3>
                       <div className="flex items-center gap-2">
-                        {!announcement.isArchived && (
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -272,25 +241,10 @@ export function AdminDashboardClient({ pendingUsers, announcements, adminUser }:
                             }}
                             disabled={isPending}
                             className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                            title="Archive Announcement"
+                            title="Delete Announcement"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
-                        )}
-                        <span
-                          className={`flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${
-                            announcement.status === "Live"
-                              ? "bg-emerald-500/10 text-emerald-400"
-                              : "bg-slate-500/10 text-slate-400"
-                          }`}
-                        >
-                          {announcement.status === "Live" ? (
-                            <CheckCircle2 className="w-3 h-3" />
-                          ) : (
-                            <Archive className="w-3 h-3" />
-                          )}
-                          {announcement.status}
-                        </span>
                       </div>
                     </div>
                     

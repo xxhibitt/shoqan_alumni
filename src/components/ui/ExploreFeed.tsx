@@ -1,6 +1,6 @@
 "use client";
 
-import { Briefcase, Calendar, Trash2, Bookmark } from "lucide-react";
+import { Briefcase, Calendar, Bookmark } from "lucide-react";
 import { useState } from "react";
 import { useDashboard } from "@/components/providers/DashboardProvider";
 import { useLanguage } from "@/components/providers/LanguageProvider";
@@ -34,18 +34,7 @@ export function ExploreFeed({ posts, isAdmin }: { posts: any[], isAdmin?: boolea
     }
   };
 
-  const handleDelete = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation();
-    if (!confirm("Are you sure you want to delete this post?")) return;
-    try {
-      const res = await fetch(`/api/posts/${id}`, { method: "DELETE" });
-      if (res.ok) {
-        router.refresh();
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
+
 
   return (
     <section>
@@ -86,14 +75,7 @@ export function ExploreFeed({ posts, isAdmin }: { posts: any[], isAdmin?: boolea
                     {post.author?.profile?.university?.name || "Admin"}
                   </p>
                 </div>
-                {isAdmin && (
-                  <button 
-                    onClick={(e) => handleDelete(e, post.id)}
-                    className="p-2 rounded-full text-white/30 hover:text-red-400 hover:bg-red-400/10 transition-colors"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                )}
+
                 <button
                   onClick={(e) => handleSavePost(e, post.id)}
                   className="p-2 rounded-full text-white/30 hover:text-emerald-400 hover:bg-emerald-400/10 transition-colors"

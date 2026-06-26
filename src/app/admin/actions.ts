@@ -83,17 +83,15 @@ export async function deleteAnnouncement(postId: string) {
   }
 
   try {
-    // Soft Delete Pattern: Change status to archived instead of a hard prisma.post.delete()
-    await prisma.post.update({
+    await prisma.post.delete({
       where: { id: postId },
-      data: { isArchived: true },
     });
 
     revalidatePath("/admin");
     revalidatePath("/explore");
     return { success: true };
   } catch (error) {
-    console.error("Failed to archive announcement:", error);
-    return { success: false, error: "Failed to archive announcement" };
+    console.error("Failed to delete announcement:", error);
+    return { success: false, error: "Failed to delete announcement" };
   }
 }
