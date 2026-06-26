@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Camera, Image as ImageIcon, CheckCircle2, BookOpen, GraduationCap, Loader2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { submitOnboardingData } from "./actions";
+import { submitOnboardingData, searchUniversities } from "./actions";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "@/lib/cropImage";
 
@@ -68,14 +68,9 @@ export default function OnboardingPage() {
     debounceTimeout.current = setTimeout(async () => {
       setIsSearchingUni(true);
       try {
-        const res = await fetch(`http://universities.hipolabs.com/search?name=${encodeURIComponent(universityQuery)}`);
-        if (res.ok) {
-          const data = await res.json();
-          // Filter duplicates
-          const uniqueNames = Array.from(new Set(data.map((uni: any) => uni.name))) as string[];
-          setUniversityResults(uniqueNames.slice(0, 10)); // Limit to top 10 matches
-          setShowDropdown(true);
-        }
+        const results = await searchUniversities(universityQuery);
+        setUniversityResults(results);
+        setShowDropdown(true);
       } catch (error) {
         console.error("Failed to fetch universities", error);
       } finally {
@@ -395,7 +390,7 @@ export default function OnboardingPage() {
 
                   {/* Dropdown */}
                   {showDropdown && universityResults.length > 0 && (
-                    <ul className="absolute top-full left-0 w-full mt-1 bg-[#1a1a1a] border border-white/10 rounded-md shadow-2xl z-[9999] max-h-60 overflow-y-auto block">
+                    <ul className="absolute top-full left-0 w-full mt-2 bg-[#1a1a1a] border border-[#333] rounded-lg shadow-2xl z-[9999] overflow-hidden">
                       {universityResults.map((uni, idx) => (
                         <li
                           key={idx}

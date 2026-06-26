@@ -149,3 +149,16 @@ export async function submitOnboardingData(formData: any) {
     return { success: false, error: "Internal Server Error" };
   }
 }
+
+export async function searchUniversities(query: string) {
+  try {
+    const res = await fetch(`http://universities.hipolabs.com/search?name=${encodeURIComponent(query)}`);
+    if (!res.ok) throw new Error("Failed to fetch");
+    const data = await res.json();
+    const uniqueNames = Array.from(new Set(data.map((uni: any) => uni.name))) as string[];
+    return uniqueNames.slice(0, 10);
+  } catch (error) {
+    console.error("Server Action searchUniversities Error:", error);
+    return [];
+  }
+}
