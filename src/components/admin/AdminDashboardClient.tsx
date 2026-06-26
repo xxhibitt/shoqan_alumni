@@ -242,13 +242,6 @@ export function AdminDashboardClient({ pendingUsers, announcements, adminUser }:
                     {pill.label}
                   </button>
                 ))}
-                
-                <div className="h-4 w-px bg-white/10 mx-1 hidden sm:block"></div>
-                
-                <button className="flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full border border-white/10 bg-black/20 text-slate-400 hover:border-white/20 hover:text-slate-200 transition-colors">
-                  <Calendar className="w-3 h-3" />
-                  Custom Range
-                </button>
               </div>
             </div>
 

@@ -15,6 +15,7 @@ export default async function ExplorePage() {
   const userId = session?.user?.id;
 
   const posts = await prisma.post.findMany({
+    where: { isArchived: false },
     orderBy: { createdAt: "desc" },
     include: {
       tags: true,
