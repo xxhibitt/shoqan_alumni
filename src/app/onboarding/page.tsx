@@ -1,11 +1,104 @@
 "use client";
 
-import React, { useState } from "react";
-import { Camera, Image as ImageIcon, CheckCircle2, ChevronRight, BookOpen, GraduationCap } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Camera, Image as ImageIcon, CheckCircle2, BookOpen, GraduationCap, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { submitOnboardingData } from "./actions";
 
 export default function OnboardingPage() {
+  const router = useRouter();
   const [role, setRole] = useState<"STUDENT" | "ALUMNUS">("STUDENT");
   const [isMentoring, setIsMentoring] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Form State
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    bio: "",
+    major: "",
+    gradYear: "",
+    financialAidStatus: "",
+    gpa: "",
+    satScore: "",
+    ieltsScore: "",
+    extracurriculars: "",
+    awards: "",
+    linkedin: "",
+    telegram: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  // Autocomplete State
+  const [universityQuery, setUniversityQuery] = useState("");
+  const [universityResults, setUniversityResults] = useState<string[]>([]);
+  const [isSearchingUni, setIsSearchingUni] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  // Hipo Labs API Integration
+  useEffect(() => {
+    if (!universityQuery.trim()) {
+      setUniversityResults([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+
+    debounceTimeout.current = setTimeout(async () => {
+      setIsSearchingUni(true);
+      try {
+        const res = await fetch(`http://universities.hipolabs.com/search?name=${encodeURIComponent(universityQuery)}`);
+        if (res.ok) {
+          const data = await res.json();
+          // Filter duplicates
+          const uniqueNames = Array.from(new Set(data.map((uni: any) => uni.name))) as string[];
+          setUniversityResults(uniqueNames.slice(0, 10)); // Limit to top 10 matches
+          setShowDropdown(true);
+        }
+      } catch (error) {
+        console.error("Failed to fetch universities", error);
+      } finally {
+        setIsSearchingUni(false);
+      }
+    }, 300);
+
+    return () => {
+      if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    };
+  }, [universityQuery]);
+
+  const selectUniversity = (name: string) => {
+    setUniversityQuery(name);
+    setShowDropdown(false);
+  };
+
+  // Submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    const payload = {
+      ...formData,
+      role,
+      isMentoring,
+      universityName: universityQuery, // Add the selected university
+    };
+
+    const res = await submitOnboardingData(payload);
+
+    if (res.success) {
+      router.push("/feed");
+      router.refresh();
+    } else {
+      console.error(res.error);
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#0f1915] text-slate-100 flex justify-center py-12 px-4 sm:px-6">
@@ -17,7 +110,7 @@ export default function OnboardingPage() {
           <p className="text-slate-400">Join the premium network of Shoqan Alumni and unlock exclusive opportunities.</p>
         </div>
 
-        <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-8" onSubmit={handleSubmit}>
           
           {/* SECTION 1: IDENTITY */}
           <div className="bg-black/40 border border-white/10 rounded-2xl p-6 sm:p-8 backdrop-blur-sm">
@@ -75,7 +168,11 @@ export default function OnboardingPage() {
                 <label className="text-sm font-medium text-slate-300">First Name</label>
                 <input
                   type="text"
-                  placeholder="Shoqan"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  required
+                  placeholder="Ivan"
                   className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all"
                 />
               </div>
@@ -83,13 +180,20 @@ export default function OnboardingPage() {
                 <label className="text-sm font-medium text-slate-300">Last Name</label>
                 <input
                   type="text"
-                  placeholder="Valikhanov"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  required
+                  placeholder="Ivanov"
                   className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all"
                 />
               </div>
               <div className="space-y-2 sm:col-span-2">
                 <label className="text-sm font-medium text-slate-300">Short Bio</label>
                 <textarea
+                  name="bio"
+                  value={formData.bio}
+                  onChange={handleChange}
                   placeholder="Tell us a little about yourself and your aspirations..."
                   rows={3}
                   className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all resize-none"
@@ -106,84 +210,97 @@ export default function OnboardingPage() {
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {role === "STUDENT" ? (
-                <>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-300">Target Universities</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. MIT, Stanford, NUS"
-                      className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-300">Intended Major</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Computer Science"
-                      className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-300">Expected Graduation</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. 2028"
-                      className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all"
-                    />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-300">Current/Graduated University</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Harvard University"
-                      className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-300">Major</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Economics"
-                      className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-300">Graduation Year</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. 2024"
-                      className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-300">Financial Aid Status</label>
-                    <select className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all appearance-none">
-                      <option value="">Select status</option>
-                      <option value="FULL_RIDE">Full Ride</option>
-                      <option value="PARTIAL">Partial Scholarship</option>
-                      <option value="SELF_FUNDED">Self Funded</option>
-                    </select>
-                  </div>
-                </>
+              
+              {/* Autocomplete University Field */}
+              <div className="space-y-2 relative sm:col-span-2">
+                <label className="text-sm font-medium text-slate-300">
+                  {role === "STUDENT" ? "Target/Current University" : "Current/Graduated University"}
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={universityQuery}
+                    onChange={(e) => {
+                      setUniversityQuery(e.target.value);
+                      setShowDropdown(true);
+                    }}
+                    onFocus={() => {
+                      if (universityResults.length > 0) setShowDropdown(true);
+                    }}
+                    onBlur={() => setTimeout(() => setShowDropdown(false), 200)} // delay hiding to allow clicks
+                    placeholder="e.g. Harvard University"
+                    className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all"
+                  />
+                  {isSearchingUni && (
+                    <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500 animate-spin" />
+                  )}
+                </div>
+
+                {/* Dropdown */}
+                {showDropdown && universityResults.length > 0 && (
+                  <ul className="absolute z-20 w-full mt-2 bg-[#1a2c24] border border-emerald-500/30 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                    {universityResults.map((uni, idx) => (
+                      <li
+                        key={idx}
+                        onClick={() => selectUniversity(uni)}
+                        className="px-4 py-3 hover:bg-emerald-500/20 cursor-pointer text-sm text-slate-300 transition-colors border-b border-white/5 last:border-0"
+                      >
+                        {uni}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-300">{role === "STUDENT" ? "Intended Major" : "Major"}</label>
+                <input
+                  type="text"
+                  name="major"
+                  value={formData.major}
+                  onChange={handleChange}
+                  placeholder="e.g. Computer Science"
+                  className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-300">{role === "STUDENT" ? "Expected Graduation" : "Graduation Year"}</label>
+                <input
+                  type="text"
+                  name="gradYear"
+                  value={formData.gradYear}
+                  onChange={handleChange}
+                  placeholder="e.g. 2024"
+                  className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all"
+                />
+              </div>
+
+              {role === "ALUMNUS" && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-300">Financial Aid Status</label>
+                  <select
+                    name="financialAidStatus"
+                    value={formData.financialAidStatus}
+                    onChange={handleChange}
+                    className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all appearance-none"
+                  >
+                    <option value="">Select status</option>
+                    <option value="FULL_RIDE">Full Ride</option>
+                    <option value="PARTIAL">Partial Scholarship</option>
+                    <option value="SELF_FUNDED">Self Funded</option>
+                  </select>
+                </div>
               )}
 
               {/* Universal Academic Inputs */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">Country of Studying</label>
-                <input
-                  type="text"
-                  placeholder="e.g. USA, UK, Singapore"
-                  className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all"
-                />
-              </div>
-              
-              <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-300">GPA</label>
-                <select className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all appearance-none">
+                <select
+                  name="gpa"
+                  value={formData.gpa}
+                  onChange={handleChange}
+                  className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all appearance-none"
+                >
                   <option value="">Select GPA range</option>
                   <option value="4.0">4.0</option>
                   <option value="3.5-3.9">3.5 - 3.9</option>
@@ -193,21 +310,26 @@ export default function OnboardingPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">Language Proficiency</label>
-                <select className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all appearance-none">
-                  <option value="">Select English Level</option>
-                  <option value="NATIVE">Native / Bilingual</option>
-                  <option value="C2">C2 (Proficient)</option>
-                  <option value="C1">C1 (Advanced)</option>
-                  <option value="B2">B2 (Upper Intermediate)</option>
-                </select>
+                <label className="text-sm font-medium text-slate-300">SAT Score</label>
+                <input
+                  type="number"
+                  name="satScore"
+                  value={formData.satScore}
+                  onChange={handleChange}
+                  placeholder="e.g. 1550"
+                  className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all"
+                />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">Standardized Tests (SAT/IELTS)</label>
+                <label className="text-sm font-medium text-slate-300">IELTS Score</label>
                 <input
-                  type="text"
-                  placeholder="e.g. SAT: 1550, IELTS: 8.0"
+                  type="number"
+                  step="0.5"
+                  name="ieltsScore"
+                  value={formData.ieltsScore}
+                  onChange={handleChange}
+                  placeholder="e.g. 8.0"
                   className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all"
                 />
               </div>
@@ -222,7 +344,7 @@ export default function OnboardingPage() {
                   <button
                     type="button"
                     onClick={() => setIsMentoring(!isMentoring)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
                       isMentoring ? "bg-emerald-500" : "bg-slate-600"
                     }`}
                   >
@@ -249,6 +371,9 @@ export default function OnboardingPage() {
                 <label className="text-sm font-medium text-slate-300">Extracurriculars</label>
                 <input
                   type="text"
+                  name="extracurriculars"
+                  value={formData.extracurriculars}
+                  onChange={handleChange}
                   placeholder="e.g. Debate Club, Varsity Soccer, Volunteering (comma separated)"
                   className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all"
                 />
@@ -258,6 +383,9 @@ export default function OnboardingPage() {
                 <label className="text-sm font-medium text-slate-300">Awards & Honors</label>
                 <input
                   type="text"
+                  name="awards"
+                  value={formData.awards}
+                  onChange={handleChange}
                   placeholder="e.g. National Math Olympiad Gold, Dean's List (comma separated)"
                   className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all"
                 />
@@ -267,6 +395,9 @@ export default function OnboardingPage() {
                 <label className="text-sm font-medium text-slate-300">LinkedIn URL</label>
                 <input
                   type="url"
+                  name="linkedin"
+                  value={formData.linkedin}
+                  onChange={handleChange}
                   placeholder="https://linkedin.com/in/username"
                   className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all"
                 />
@@ -278,6 +409,9 @@ export default function OnboardingPage() {
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">@</span>
                   <input
                     type="text"
+                    name="telegram"
+                    value={formData.telegram}
+                    onChange={handleChange}
                     placeholder="username"
                     className="w-full bg-black/20 border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all"
                   />
@@ -290,10 +424,20 @@ export default function OnboardingPage() {
           <div className="sticky bottom-4 pt-4 pb-2 z-10">
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]"
+              disabled={isSubmitting}
+              className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/50 disabled:cursor-not-allowed text-white font-bold py-4 px-8 rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]"
             >
-              Complete Profile
-              <CheckCircle2 className="w-5 h-5" />
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Saving Profile...
+                </>
+              ) : (
+                <>
+                  Complete Profile
+                  <CheckCircle2 className="w-5 h-5" />
+                </>
+              )}
             </button>
           </div>
 
