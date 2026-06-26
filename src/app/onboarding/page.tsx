@@ -160,11 +160,12 @@ export default function OnboardingPage() {
 
     const res = await submitOnboardingData(payload);
 
-    if (res.success) {
-      router.push("/feed");
+    if (res.success && res.redirectTo) {
+      router.push(res.redirectTo);
       router.refresh();
     } else {
       console.error(res.error);
+      alert(res.error || "Failed to submit profile. Please try again.");
       setIsSubmitting(false);
     }
   };

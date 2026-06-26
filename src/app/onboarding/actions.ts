@@ -143,10 +143,10 @@ export async function submitOnboardingData(formData: any) {
       });
     }
 
-    return { success: true };
-  } catch (error) {
+    return { success: true, redirectTo: "/pending" };
+  } catch (error: any) {
     console.error("Failed to submit onboarding data:", error);
-    return { success: false, error: "Internal Server Error" };
+    return { success: false, error: error.message || "Internal Server Error" };
   }
 }
 
