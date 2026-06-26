@@ -27,7 +27,7 @@ export function ImageCropper({ imageSrc, aspectRatio, onCropDone, onCancel }: Im
     if (!croppedAreaPixels) return;
     try {
       setIsProcessing(true);
-      const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels, 0);
+      const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels);
       if (croppedImage) {
         onCropDone(croppedImage);
       }
