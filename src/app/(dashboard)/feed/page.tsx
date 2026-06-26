@@ -8,11 +8,18 @@ export const dynamic = 'force-dynamic';
 
 export default async function FeedPage() {
   const session = await getServerSession(authOptions);
-  const userId = session?.user?.id;
+  const userId = (session?.user as any)?.id;
+  const userRole = (session?.user as any)?.role;
 
   const allProfiles = await prisma.profile.findMany({
+    where: userRole === 'ADMIN' ? undefined : {
+      OR: [
+        { user: { status: 'APPROVED' } },
+        { userId: userId } // Allow users to always see their own profile
+      ]
+    },
     include: {
-      user: { select: { role: true } },
+      user: { select: { role: true, status: true } },
       university: true,
       academicData: true,
       alumniData: true,
