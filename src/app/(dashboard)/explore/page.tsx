@@ -1,54 +1,26 @@
-import { prisma } from "@/lib/prisma";
-import { ExploreClient } from "@/components/explore/ExploreClient";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { recommendPosts } from "@/lib/recommendations";
-
-// Make the route dynamic so it fetches fresh data on every request
-export const dynamic = 'force-dynamic';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // Проверь правильность пути
+import { redirect } from "next/navigation";
+import prisma from "@/lib/prisma";
+import { ExploreClient } from "@/components/explore/ExploreClient"; // Проверь правильность пути
 
 export default async function ExplorePage() {
+  // 1. Проверяем сессию
   const session = await getServerSession(authOptions);
-  // @ts-ignore
-  const isAdmin = session?.user?.role === "ADMIN";
-  const userId = session?.user?.id;
 
-  const posts = await prisma.post.findMany({
-    where: { isArchived: false },
-    orderBy: { createdAt: "desc" },
-    include: {
-      tags: true,
-      author: {
-        include: {
-          profile: true,
-        },
-      },
-    },
-  });
-
-  let recommendedPosts = posts;
-
-  if (userId) {
-    const currentUserProfile = await prisma.profile.findUnique({
-      where: { userId },
-      include: {
-        academicData: true,
-        alumniData: true,
-        tags: true,
-      }
-    });
-
-    if (currentUserProfile) {
-      recommendedPosts = recommendPosts(currentUserProfile, posts);
-    }
+  if (!session) {
+    redirect("/login");
   }
 
-  // Serialize dates for Client Components
-  const serializedPosts = recommendedPosts.map(post => ({
-    ...post,
-    createdAt: post.createdAt.toISOString(),
-    updatedAt: post.updatedAt.toISOString(),
-  }));
+  // 2. Достаем только АКТИВНЫЕ посты (без архива)
+  const announcements = await prisma.post.findMany({
+    where: {
+      type: "ANNOUNCEMENT",
+      isArchived: false
+    },
+    orderBy: { createdAt: "desc" }
+  });
 
-  return <ExploreClient announcements={serializedPosts} isAdmin={isAdmin} />;
+  // 3. Передаем готовые данные в Клиентский компонент
+  return <ExploreClient announcements={announcements} />;
 }
