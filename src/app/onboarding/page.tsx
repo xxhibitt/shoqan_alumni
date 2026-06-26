@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { Camera, Image as ImageIcon, CheckCircle2, BookOpen, GraduationCap, Loader2 } from "lucide-react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Camera, Image as ImageIcon, CheckCircle2, BookOpen, GraduationCap, Loader2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { submitOnboardingData } from "./actions";
+import Cropper from "react-easy-crop";
+import getCroppedImg from "@/lib/cropImage";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -31,6 +33,20 @@ export default function OnboardingPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
+
+  // Image & Crop State
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [bannerUrl, setBannerUrl] = useState("");
+
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [cropType, setCropType] = useState<"AVATAR" | "BANNER">("AVATAR");
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [isCropping, setIsCropping] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Autocomplete State
   const [universityQuery, setUniversityQuery] = useState("");
@@ -77,6 +93,62 @@ export default function OnboardingPage() {
     setShowDropdown(false);
   };
 
+  // Image Upload Logic
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: "AVATAR" | "BANNER") => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImageSrc(reader.result as string);
+        setCropType(type);
+        setCrop({ x: 0, y: 0 });
+        setZoom(1);
+        setShowCropModal(true);
+      };
+      reader.readAsDataURL(file);
+    }
+    // reset input so the same file can be selected again if needed
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const onCropComplete = useCallback((croppedArea: any, croppedAreaPixels: any) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  const handleCropConfirm = async () => {
+    if (!imageSrc || !croppedAreaPixels) return;
+    setIsCropping(true);
+    
+    try {
+      const croppedFile = await getCroppedImg(imageSrc, croppedAreaPixels);
+      if (!croppedFile) throw new Error("Crop extraction failed");
+
+      const formData = new FormData();
+      formData.append("file", croppedFile);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+
+      if (data.success && data.url) {
+        if (cropType === "AVATAR") setAvatarUrl(data.url);
+        else setBannerUrl(data.url);
+        
+        setShowCropModal(false);
+        setImageSrc(null);
+      } else {
+        alert(data.error || "Upload failed. Please try again.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error processing image.");
+    } finally {
+      setIsCropping(false);
+    }
+  };
+
   // Submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +159,8 @@ export default function OnboardingPage() {
       role,
       isMentoring,
       universityName: universityQuery, // Add the selected university
+      avatarUrl,
+      bannerUrl,
     };
 
     const res = await submitOnboardingData(payload);
@@ -102,6 +176,69 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-screen bg-[#0f1915] text-slate-100 flex justify-center py-12 px-4 sm:px-6">
+      
+      {/* CROP MODAL */}
+      {showCropModal && imageSrc && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#0f1915] border border-white/10 rounded-2xl w-full max-w-xl overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <h3 className="font-bold text-white">
+                Crop {cropType === "AVATAR" ? "Profile Picture" : "Cover Photo"}
+              </h3>
+              <button 
+                onClick={() => { setShowCropModal(false); setImageSrc(null); }}
+                className="text-slate-400 hover:text-white transition-colors"
+                disabled={isCropping}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="relative w-full h-[60vh] bg-black">
+              <Cropper
+                image={imageSrc}
+                crop={crop}
+                zoom={zoom}
+                aspect={cropType === "AVATAR" ? 1 : 3 / 1}
+                cropShape={cropType === "AVATAR" ? "round" : "rect"}
+                onCropChange={setCrop}
+                onCropComplete={onCropComplete}
+                onZoomChange={setZoom}
+              />
+            </div>
+
+            <div className="p-4 border-t border-white/10 flex justify-end gap-3 bg-[#14221c]">
+              <button
+                type="button"
+                onClick={() => { setShowCropModal(false); setImageSrc(null); }}
+                className="px-4 py-2 rounded-xl text-sm font-medium text-slate-300 hover:bg-white/5 transition-colors"
+                disabled={isCropping}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleCropConfirm}
+                disabled={isCropping}
+                className="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/50 text-white font-bold py-2 px-6 rounded-xl transition-all shadow-[0_0_15px_rgba(16,185,129,0.2)]"
+              >
+                {isCropping ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                {isCropping ? "Saving..." : "Apply"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Hidden File Input */}
+      <input 
+        type="file" 
+        accept="image/*"
+        ref={fileInputRef}
+        className="hidden"
+        onChange={(e) => onFileChange(e, cropType)}
+      />
+
       <div className="w-full max-w-3xl">
         
         {/* Header */}
@@ -148,16 +285,37 @@ export default function OnboardingPage() {
             </div>
 
             {/* Banner Placeholder */}
-            <div className="relative h-32 sm:h-48 rounded-xl bg-[#14221c] border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-slate-400 hover:border-emerald-500/30 hover:bg-[#1a2c24] transition-colors cursor-pointer group mb-16 overflow-visible">
-              <ImageIcon className="w-8 h-8 mb-2 group-hover:text-emerald-400 transition-colors" />
-              <span className="text-sm font-medium">Upload Cover Photo</span>
+            <div 
+              className="relative h-32 sm:h-48 rounded-xl bg-[#14221c] border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-slate-400 hover:border-emerald-500/30 hover:bg-[#1a2c24] transition-colors cursor-pointer group mb-16 overflow-visible bg-cover bg-center"
+              style={{ backgroundImage: bannerUrl ? `url(${bannerUrl})` : "none" }}
+              onClick={() => {
+                setCropType("BANNER");
+                fileInputRef.current?.click();
+              }}
+            >
+              {!bannerUrl && (
+                <>
+                  <ImageIcon className="w-8 h-8 mb-2 group-hover:text-emerald-400 transition-colors" />
+                  <span className="text-sm font-medium">Upload Cover Photo</span>
+                </>
+              )}
               
               {/* Avatar Placeholder */}
               <div className="absolute -bottom-10 left-6 sm:left-10">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[#0f1915] border-4 border-[#0f1915] flex items-center justify-center relative group/avatar cursor-pointer">
-                  <div className="absolute inset-0 rounded-full bg-[#1a2c24] border-2 border-dashed border-white/20 flex flex-col items-center justify-center hover:border-emerald-500/50 transition-colors">
-                    <Camera className="w-6 h-6 text-slate-400 group-hover/avatar:text-emerald-400" />
-                  </div>
+                <div 
+                  className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[#0f1915] border-4 border-[#0f1915] flex items-center justify-center relative group/avatar cursor-pointer bg-cover bg-center"
+                  style={{ backgroundImage: avatarUrl ? `url(${avatarUrl})` : "none" }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCropType("AVATAR");
+                    fileInputRef.current?.click();
+                  }}
+                >
+                  {!avatarUrl && (
+                    <div className="absolute inset-0 rounded-full bg-[#1a2c24] border-2 border-dashed border-white/20 flex flex-col items-center justify-center hover:border-emerald-500/50 transition-colors">
+                      <Camera className="w-6 h-6 text-slate-400 group-hover/avatar:text-emerald-400" />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

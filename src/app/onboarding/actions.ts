@@ -28,6 +28,8 @@ export async function submitOnboardingData(formData: any) {
     awards,
     linkedin,
     telegram,
+    avatarUrl,
+    bannerUrl,
   } = formData;
 
   try {
@@ -85,6 +87,8 @@ export async function submitOnboardingData(formData: any) {
         firstName,
         lastName,
         bio,
+        avatarUrl,
+        bannerUrl,
         gradYear: parsedGradYear,
         universityId,
         financialAidStatus,
@@ -96,6 +100,8 @@ export async function submitOnboardingData(formData: any) {
         firstName,
         lastName,
         bio,
+        avatarUrl,
+        bannerUrl,
         gradYear: parsedGradYear,
         universityId,
         financialAidStatus,
