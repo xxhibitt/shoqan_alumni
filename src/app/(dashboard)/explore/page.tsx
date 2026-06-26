@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // Проверь правильность пути
 import { redirect } from "next/navigation";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { ExploreClient } from "@/components/explore/ExploreClient"; // Проверь правильность пути
 
 export default async function ExplorePage() {
