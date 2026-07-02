@@ -14,7 +14,8 @@ export default async function ExplorePage() {
   const announcements = await prisma.post.findMany({
     where: {
       type: "ANNOUNCEMENT",
-      isArchived: false
+      isArchived: false,
+      author: { status: "APPROVED" }
     },
     orderBy: { createdAt: "desc" }
   });

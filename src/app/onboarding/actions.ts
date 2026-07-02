@@ -203,3 +203,53 @@ export async function searchUniversities(query: string) {
     return [];
   }
 }
+
+export async function getUserProfileData() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) return null;
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    include: {
+      profile: {
+        include: {
+          university: true,
+          academicData: true,
+          alumniData: true,
+        }
+      }
+    }
+  });
+
+  if (!user || !user.profile) return null;
+
+  const p = user.profile;
+  const a = p.academicData;
+  const al = p.alumniData;
+
+  const achievementsObj = p.achievements as any;
+  const extracurricularsArray = achievementsObj?.extracurriculars || [];
+
+  const socialLinksObj = p.socialLinks as any;
+
+  return {
+    role: user.role === "ALUMNI" ? "ALUMNUS" : "STUDENT",
+    firstName: p.firstName || "",
+    lastName: p.lastName || "",
+    bio: p.bio || "",
+    universityName: p.university?.name || "",
+    major: a?.intendedMajor || "",
+    gradYear: p.gradYear?.toString() || "",
+    financialAidStatus: p.financialAidStatus || "",
+    gpa: a?.gpa ? (a.gpa >= 4.0 ? "4.0" : a.gpa >= 3.5 ? "3.5-3.9" : a.gpa >= 3.0 ? "3.0-3.4" : "<3.0") : "",
+    satScore: a?.satScore?.toString() || "",
+    ieltsScore: a?.ieltsScore?.toString() || "",
+    extracurriculars: extracurricularsArray.join(", "),
+    awards: p.awards?.join(", ") || "",
+    linkedin: socialLinksObj?.linkedin || "",
+    telegram: user.telegramUsername || "",
+    avatarUrl: p.avatarUrl || "",
+    bannerUrl: p.bannerUrl || "",
+    isMentoring: al?.isMentoring || false,
+  };
+}

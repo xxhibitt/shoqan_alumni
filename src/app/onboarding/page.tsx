@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Camera, Image as ImageIcon, CheckCircle2, BookOpen, GraduationCap, Loader2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { submitOnboardingData, searchUniversities } from "./actions";
+import { submitOnboardingData, searchUniversities, getUserProfileData } from "./actions";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "@/lib/cropImage";
 
@@ -12,6 +12,7 @@ export default function OnboardingPage() {
   const [role, setRole] = useState<"STUDENT" | "ALUMNUS">("STUDENT");
   const [isMentoring, setIsMentoring] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -33,6 +34,43 @@ export default function OnboardingPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
+
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const existingData = await getUserProfileData();
+        if (existingData) {
+          setRole(existingData.role as "STUDENT" | "ALUMNUS");
+          setIsMentoring(existingData.isMentoring);
+          setUniversityQuery(existingData.universityName);
+          setAvatarUrl(existingData.avatarUrl);
+          setBannerUrl(existingData.bannerUrl);
+          
+          setFormData({
+            firstName: existingData.firstName,
+            lastName: existingData.lastName,
+            bio: existingData.bio,
+            major: existingData.major,
+            gradYear: existingData.gradYear,
+            financialAidStatus: existingData.financialAidStatus,
+            gpa: existingData.gpa,
+            satScore: existingData.satScore,
+            ieltsScore: existingData.ieltsScore,
+            extracurriculars: existingData.extracurriculars,
+            awards: existingData.awards,
+            linkedin: existingData.linkedin,
+            telegram: existingData.telegram,
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch existing profile data", error);
+      } finally {
+        setIsLoadingProfile(false);
+      }
+    }
+    
+    fetchProfile();
+  }, []);
 
   // Image & Crop State
   const [avatarUrl, setAvatarUrl] = useState("");
@@ -178,6 +216,11 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-screen bg-[#0f1915] text-slate-100 flex justify-center py-12 px-4 sm:px-6">
+      {isLoadingProfile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0f1915]">
+          <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        </div>
+      )}
       
       {/* CROP MODAL */}
       {showCropModal && imageSrc && (
