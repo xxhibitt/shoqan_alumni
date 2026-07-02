@@ -79,6 +79,13 @@ export function AdminDashboardClient({ pendingUsers, announcements, adminUser }:
     });
   }, [formattedAnnouncements, dateFilter, searchQuery]);
 
+  const handleReject = async (userId: string) => {
+    const reason = window.prompt("Please enter the reason for rejection (this will be sent to the user):");
+    if (!reason) return; // Cancel if the admin clicks cancel or leaves it blank
+
+    await rejectUser(userId, reason);
+  };
+
   return (
     <div className="min-h-screen bg-[#f4f7f5] dark:bg-[#0f1915] text-slate-900 dark:text-white p-8">
       <div className="max-w-4xl mx-auto">
@@ -155,7 +162,7 @@ export function AdminDashboardClient({ pendingUsers, announcements, adminUser }:
                         {/* Right Side (Action Buttons) */}
                         <div className="flex items-center gap-3">
                           <button 
-                            onClick={() => rejectUser(user.id)}
+                            onClick={() => handleReject(user.id)}
                             className="px-4 py-2 text-sm font-medium rounded-lg border border-red-500/50 text-red-500 hover:bg-red-500/10 transition-colors"
                           >
                             Reject
