@@ -20,15 +20,13 @@ export default async function DashboardLayout({
     select: { status: true },
   });
 
+  // Bulletproof checks for NEW or null status
   if (!user?.status || user.status === "NEW") {
     redirect("/onboarding");
   }
 
-  if (user.status === "PENDING") {
-    redirect("/pending");
-  }
-
-  if (user.status === "REJECTED") {
+  // If they are anything other than APPROVED (or ADMIN), lock them out of the dashboard
+  if (user.status === "PENDING" || user.status === "REJECTED") {
     redirect("/pending");
   }
 

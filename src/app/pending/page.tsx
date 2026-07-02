@@ -19,6 +19,14 @@ export default async function PendingPage() {
     redirect("/login");
   }
 
+  if (!user.status || user.status === "NEW") {
+    redirect("/onboarding");
+  }
+
+  if (user.status === "APPROVED") {
+    redirect("/feed");
+  }
+
   const isRejected = user.status === "REJECTED";
 
   return (
