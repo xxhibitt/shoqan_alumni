@@ -20,7 +20,15 @@ export default async function DashboardLayout({
     select: { status: true },
   });
 
-  if (user?.status === "PENDING") {
+  if (!user?.status || user.status === "NEW") {
+    redirect("/onboarding");
+  }
+
+  if (user.status === "PENDING") {
+    redirect("/pending");
+  }
+
+  if (user.status === "REJECTED") {
     redirect("/pending");
   }
 
