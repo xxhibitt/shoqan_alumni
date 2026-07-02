@@ -34,7 +34,7 @@ export async function POST(req: Request) {
         email,
         passwordHash,
         role: "STUDENT", 
-        status: "PENDING",
+        status: "NEW", // Fix: Start users strictly in NEW status
         isVerified: false,
         profile: {
           create: {
