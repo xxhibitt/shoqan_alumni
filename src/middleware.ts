@@ -50,7 +50,7 @@ export async function middleware(req: NextRequest) {
     if (status === "NEW" && !isOnboardingPage) {
       return NextResponse.redirect(new URL("/onboarding", req.url));
     }
-    if (status === "PENDING" && !isPendingPage) {
+    if (status === "PENDING" && !isPendingPage && !isOnboardingPage) {
       return NextResponse.redirect(new URL("/pending", req.url));
     }
     if (status === "REJECTED" && !isPendingPage && !isOnboardingPage) {
