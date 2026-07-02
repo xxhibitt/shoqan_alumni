@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { headers } from "next/headers";
 import { DashboardClientShell } from "@/components/layout/DashboardClientShell";
 
 export default async function DashboardLayout({
@@ -25,8 +26,14 @@ export default async function DashboardLayout({
     redirect("/onboarding");
   }
 
-  // If they are anything other than APPROVED (or ADMIN), lock them out of the dashboard
-  if (user.status === "PENDING" || user.status === "REJECTED") {
+  const headersList = await headers();
+  const invokePath = headersList.get("x-invoke-path") || "";
+
+  if (user.status === "PENDING") {
+    redirect("/pending");
+  }
+
+  if (user.status === "REJECTED" && !invokePath.includes("/onboarding") && !invokePath.includes("/pending")) {
     redirect("/pending");
   }
 
