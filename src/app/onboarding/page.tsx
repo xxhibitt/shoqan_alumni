@@ -199,8 +199,8 @@ export default function OnboardingPage() {
     try {
       const res = await submitOnboardingData(payload);
 
-      if (res.success && res.redirectTo) {
-        window.location.href = res.redirectTo; // Nuclear failsafe redirect
+      if (res.success) {
+        window.location.replace('/pending');
         return;
       } else {
         console.error("Server Action Error:", res.error);
