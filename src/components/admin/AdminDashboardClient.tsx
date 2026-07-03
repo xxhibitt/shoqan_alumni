@@ -8,10 +8,7 @@ import { HighlightedText } from "@/components/ui/highlighted-text";
 type UserProfile = {
   id: string;
   email: string;
-  profile: {
-    firstName: string;
-    lastName: string;
-  } | null;
+  profile: any;
 };
 
 type Post = {
@@ -43,6 +40,7 @@ const DATE_PILLS = [
 export function AdminDashboardClient({ pendingUsers, announcements, adminUser }: AdminDashboardClientProps) {
   const [activeTab, setActiveTab] = useState<"moderation" | "announcements">("moderation");
   const [isPending, startTransition] = useTransition();
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
 
   // Announcements Filter State
   const [searchQuery, setSearchQuery] = useState("");
@@ -162,6 +160,13 @@ export function AdminDashboardClient({ pendingUsers, announcements, adminUser }:
                         {/* Right Side (Action Buttons) */}
                         <div className="flex items-center gap-3">
                           <button 
+                            onClick={() => setExpandedUserId(expandedUserId === user.id ? null : user.id)}
+                            className="px-4 py-2 text-sm font-medium rounded-lg bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
+                          >
+                            {expandedUserId === user.id ? "Hide Details" : "Review Details"}
+                          </button>
+                          
+                          <button 
                             onClick={() => handleReject(user.id)}
                             className="px-4 py-2 text-sm font-medium rounded-lg border border-red-500/50 text-red-500 hover:bg-red-500/10 transition-colors"
                           >
@@ -176,6 +181,31 @@ export function AdminDashboardClient({ pendingUsers, announcements, adminUser }:
                           </button>
                         </div>
                       </div>
+
+                      {/* Expandable Review Panel */}
+                      {expandedUserId === user.id && profile && (
+                        <div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/10 grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 dark:bg-black/20 p-4 rounded-lg">
+                          <div className="space-y-3">
+                            <h3 className="text-sm font-semibold text-emerald-500 uppercase tracking-wider">Academics</h3>
+                            <p className="text-sm"><span className="text-slate-400">University:</span> {profile.university?.name || "N/A"}</p>
+                            <p className="text-sm"><span className="text-slate-400">Major:</span> {profile.academicData?.intendedMajor || profile.alumniData?.jobTitle || "N/A"}</p>
+                            <p className="text-sm"><span className="text-slate-400">Grad Year:</span> {profile.gradYear || "N/A"}</p>
+                            <p className="text-sm"><span className="text-slate-400">GPA:</span> {profile.academicData?.gpa || "N/A"}</p>
+                            <p className="text-sm"><span className="text-slate-400">SAT:</span> {profile.academicData?.satScore || "N/A"}</p>
+                            <p className="text-sm"><span className="text-slate-400">IELTS:</span> {profile.academicData?.ieltsScore || "N/A"}</p>
+                          </div>
+                          <div className="space-y-3">
+                            <h3 className="text-sm font-semibold text-emerald-500 uppercase tracking-wider">Network & Experience</h3>
+                            <p className="text-sm"><span className="text-slate-400">Extracurriculars:</span> {profile.extracurriculars || "N/A"}</p>
+                            <p className="text-sm"><span className="text-slate-400">Awards:</span> {profile.awards || "N/A"}</p>
+                            <p className="text-sm flex items-center gap-1">
+                              <span className="text-slate-400">LinkedIn:</span>
+                              {profile.linkedin ? <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline truncate">{profile.linkedin}</a> : "N/A"}
+                            </p>
+                            <p className="text-sm"><span className="text-slate-400">Telegram:</span> {profile.telegram ? `@${profile.telegram.replace('@', '')}` : "N/A"}</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}

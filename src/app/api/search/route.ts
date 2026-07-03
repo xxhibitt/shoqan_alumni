@@ -12,12 +12,17 @@ export async function GET(req: Request) {
 
     const profiles = await prisma.profile.findMany({
       where: {
-        OR: [
-          { firstName: { contains: q, mode: 'insensitive' } },
-          { lastName: { contains: q, mode: 'insensitive' } },
-          { bio: { contains: q, mode: 'insensitive' } },
-          { tags: { some: { name: { contains: q, mode: 'insensitive' } } } },
-          { university: { name: { contains: q, mode: 'insensitive' } } }
+        AND: [
+          { user: { status: 'APPROVED' } },
+          {
+            OR: [
+              { firstName: { contains: q, mode: 'insensitive' } },
+              { lastName: { contains: q, mode: 'insensitive' } },
+              { bio: { contains: q, mode: 'insensitive' } },
+              { tags: { some: { name: { contains: q, mode: 'insensitive' } } } },
+              { university: { name: { contains: q, mode: 'insensitive' } } }
+            ]
+          }
         ]
       },
       take: 5,

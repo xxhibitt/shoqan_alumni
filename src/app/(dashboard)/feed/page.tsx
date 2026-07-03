@@ -12,7 +12,7 @@ export default async function FeedPage() {
   const userRole = (session?.user as any)?.role;
 
   const allProfiles = await prisma.profile.findMany({
-    where: userRole === 'ADMIN' ? undefined : {
+    where: {
       OR: [
         { user: { status: 'APPROVED' } },
         { userId: userId } // Allow users to always see their own profile

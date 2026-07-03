@@ -16,7 +16,15 @@ export default async function AdminDashboardPage() {
   const [pendingUsers, announcements] = await Promise.all([
     prisma.user.findMany({
       where: { status: "PENDING" },
-      include: { profile: true },
+      include: { 
+        profile: {
+          include: {
+            university: true,
+            academicData: true,
+            alumniData: true,
+          }
+        } 
+      },
       orderBy: { createdAt: "asc" },
     }),
     prisma.post.findMany({
