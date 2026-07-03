@@ -16,13 +16,14 @@ const ExploreFeed = dynamic(
 interface ExploreClientProps {
   announcements: any[];
   isAdmin?: boolean;
+  currentUserId?: string;
 }
 
-export function ExploreClient({ announcements, isAdmin }: ExploreClientProps) {
+export function ExploreClient({ announcements, isAdmin, currentUserId }: ExploreClientProps) {
   return (
     <div className="flex-1 p-8 overflow-y-auto">
       <ExploreHeader />
-      <ExploreFeed posts={announcements} isAdmin={isAdmin} />
+      <ExploreFeed posts={announcements} isAdmin={isAdmin} currentUserId={currentUserId} />
     </div>
   );
 }

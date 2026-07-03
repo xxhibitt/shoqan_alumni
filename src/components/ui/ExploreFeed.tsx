@@ -1,12 +1,12 @@
 "use client";
 
-import { Briefcase, Calendar, Bookmark } from "lucide-react";
+import { Briefcase, Calendar, Bookmark, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useDashboard } from "@/components/providers/DashboardProvider";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { useRouter } from "next/navigation";
 
-export function ExploreFeed({ posts, isAdmin }: { posts: any[], isAdmin?: boolean }) {
+export function ExploreFeed({ posts, isAdmin, currentUserId }: { posts: any[], isAdmin?: boolean, currentUserId?: string }) {
   const { t } = useLanguage();
   const { setSelectedPost } = useDashboard();
   const router = useRouter();
@@ -76,12 +76,29 @@ export function ExploreFeed({ posts, isAdmin }: { posts: any[], isAdmin?: boolea
                   </p>
                 </div>
 
-                <button
-                  onClick={(e) => handleSavePost(e, post.id)}
-                  className="p-2 rounded-full text-white/30 hover:text-emerald-400 hover:bg-emerald-400/10 transition-colors"
-                >
-                  <Bookmark className={`h-4 w-4 ${savedStates[post.id] ? "fill-emerald-500 text-emerald-500" : ""}`} />
-                </button>
+                <div className="flex items-center gap-1">
+                  {(isAdmin || post.authorId === currentUserId) && (
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        if (confirm("Are you sure you want to hide this post?")) {
+                          const { hidePost } = await import("@/app/admin/actions");
+                          await hidePost(post.id);
+                        }
+                      }}
+                      className="p-2 rounded-full text-white/30 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                      title="Hide Post"
+                    >
+                      <EyeOff className="h-4 w-4" />
+                    </button>
+                  )}
+                  <button
+                    onClick={(e) => handleSavePost(e, post.id)}
+                    className="p-2 rounded-full text-white/30 hover:text-emerald-400 hover:bg-emerald-400/10 transition-colors"
+                  >
+                    <Bookmark className={`h-4 w-4 ${savedStates[post.id] ? "fill-emerald-500 text-emerald-500" : ""}`} />
+                  </button>
+                </div>
               </div>
 
               {/* Content */}

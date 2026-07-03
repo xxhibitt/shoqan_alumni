@@ -139,3 +139,55 @@ export async function deleteAnnouncement(postId: string) {
     return { success: false, error: "Failed to delete announcement" };
   }
 }
+
+export async function hidePost(postId: string) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) throw new Error("Unauthorized");
+
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    select: { authorId: true },
+  });
+
+  if (!post) throw new Error("Post not found");
+  
+  // @ts-ignore
+  if (post.authorId !== session.user.id && session.user.role !== "ADMIN") {
+    throw new Error("Unauthorized");
+  }
+
+  try {
+    await prisma.post.update({
+      where: { id: postId },
+      data: { isHidden: true },
+    });
+    revalidatePath("/explore");
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to hide post:", error);
+    return { success: false, error: "Failed to hide post" };
+  }
+}
+
+export async function unhidePost(postId: string) {
+  const session = await getServerSession(authOptions);
+  
+  // @ts-ignore
+  if (session?.user?.role !== "ADMIN") {
+    throw new Error("Unauthorized");
+  }
+
+  try {
+    await prisma.post.update({
+      where: { id: postId },
+      data: { isHidden: false },
+    });
+    revalidatePath("/explore");
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to unhide post:", error);
+    return { success: false, error: "Failed to unhide post" };
+  }
+}

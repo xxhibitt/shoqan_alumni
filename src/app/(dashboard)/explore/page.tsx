@@ -15,6 +15,7 @@ export default async function ExplorePage() {
     where: {
       type: "ANNOUNCEMENT",
       isArchived: false,
+      isHidden: false,
       author: { status: "APPROVED" }
     },
     include: {
@@ -27,5 +28,10 @@ export default async function ExplorePage() {
     orderBy: { createdAt: "desc" }
   });
 
-  return <ExploreClient announcements={announcements} />;
+  // @ts-ignore
+  const currentUserId = session.user?.id;
+  // @ts-ignore
+  const isAdmin = session.user?.role === "ADMIN";
+
+  return <ExploreClient announcements={announcements} isAdmin={isAdmin} currentUserId={currentUserId} />;
 }

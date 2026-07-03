@@ -128,6 +128,7 @@ model Post {
   imageUrl    String?
   type        String      // e.g. "internship", "olympiad", "announcement"
   isArchived  Boolean     @default(false)
+  isHidden    Boolean     @default(false)
   authorId    String
   author      User        @relation("UserPosts", fields: [authorId], references: [id], onDelete: Cascade)
   createdAt   DateTime    @default(now())

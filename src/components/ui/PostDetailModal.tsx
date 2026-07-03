@@ -118,11 +118,15 @@ export function PostDetailModal() {
 
               {/* Tags */}
               <div className="flex flex-wrap gap-2 mb-8">
-                {(selectedPost.tags || ["#Tech", "#Almaty"]).map((tag: any, i: number) => (
-                  <span key={i} className="px-2.5 py-1 bg-white/5 border border-white/10 rounded-md text-sm font-medium text-white/70">
-                    {typeof tag === 'string' ? tag : tag.name}
-                  </span>
-                ))}
+                {(selectedPost.tags || []).map((tag: any, i: number) => {
+                  const tagName = typeof tag === 'string' ? tag : tag.name;
+                  if (!tagName) return null;
+                  return (
+                    <span key={i} className="px-2.5 py-1 bg-white/5 border border-white/10 rounded-md text-sm font-medium text-white/70">
+                      {tagName.startsWith('#') ? tagName : `#${tagName}`}
+                    </span>
+                  );
+                })}
               </div>
 
               <div className="prose prose-invert max-w-none prose-p:text-white/80 prose-p:leading-relaxed prose-headings:text-white">

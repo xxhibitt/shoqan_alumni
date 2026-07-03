@@ -13,7 +13,7 @@ export default async function AdminDashboardPage() {
     redirect("/");
   }
 
-  const [pendingUsers, announcements] = await Promise.all([
+  const [pendingUsers, announcements, hiddenPosts] = await Promise.all([
     prisma.user.findMany({
       where: { status: "PENDING" },
       include: { 
@@ -28,8 +28,19 @@ export default async function AdminDashboardPage() {
       orderBy: { createdAt: "asc" },
     }),
     prisma.post.findMany({
-      where: { type: "ANNOUNCEMENT" }, // Capitalized as requested
+      where: { type: "ANNOUNCEMENT", isHidden: false }, // Don't show hidden posts in standard announcements list
       orderBy: { createdAt: "desc" },
+    }),
+    prisma.post.findMany({
+      where: { isHidden: true },
+      orderBy: { createdAt: "desc" },
+      include: {
+        author: {
+          include: {
+            profile: true
+          }
+        }
+      }
     }),
   ]);
 
@@ -37,6 +48,7 @@ export default async function AdminDashboardPage() {
     <AdminDashboardClient 
       pendingUsers={pendingUsers} 
       announcements={announcements} 
+      hiddenPosts={hiddenPosts}
       adminUser={session.user}
     />
   );

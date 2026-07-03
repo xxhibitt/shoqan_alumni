@@ -23,6 +23,7 @@ type Post = {
 interface AdminDashboardClientProps {
   pendingUsers: UserProfile[];
   announcements: Post[];
+  hiddenPosts?: any[];
   adminUser: {
     name?: string | null;
     email?: string | null;
@@ -37,8 +38,8 @@ const DATE_PILLS = [
   { label: "This Year", value: "YEAR" },
 ];
 
-export function AdminDashboardClient({ pendingUsers, announcements, adminUser }: AdminDashboardClientProps) {
-  const [activeTab, setActiveTab] = useState<"moderation" | "announcements">("moderation");
+export function AdminDashboardClient({ pendingUsers, announcements, hiddenPosts = [], adminUser }: AdminDashboardClientProps) {
+  const [activeTab, setActiveTab] = useState<"moderation" | "announcements" | "hidden">("moderation");
   const [isPending, startTransition] = useTransition();
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
 
@@ -120,6 +121,20 @@ export function AdminDashboardClient({ pendingUsers, announcements, adminUser }:
           >
             All Announcements
             {activeTab === "announcements" && (
+              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-emerald-500 rounded-t-full" />
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab("hidden")}
+            className={`pb-3 text-sm font-medium transition-colors relative ${
+              activeTab === "hidden"
+                ? "text-emerald-500"
+                : "text-slate-500 hover:text-slate-300"
+            }`}
+          >
+            Hidden Posts
+            {activeTab === "hidden" && (
               <div className="absolute bottom-0 left-0 w-full h-0.5 bg-emerald-500 rounded-t-full" />
             )}
           </button>
@@ -299,6 +314,48 @@ export function AdminDashboardClient({ pendingUsers, announcements, adminUser }:
                 ))
               )}
             </div>
+          </div>
+        )}
+
+        {/* Tab 3: Hidden Posts */}
+        {activeTab === "hidden" && (
+          <div className="space-y-4">
+            {hiddenPosts.length === 0 ? (
+              <div className="text-center py-12 border border-dashed border-white/10 rounded-xl">
+                <p className="text-slate-500 text-sm">No hidden posts.</p>
+              </div>
+            ) : (
+              hiddenPosts.map((post) => (
+                <div
+                  key={post.id}
+                  className="group bg-black/20 border border-white/5 hover:border-emerald-500/30 rounded-xl p-5 transition-all flex flex-col"
+                >
+                  <div className="flex items-start justify-between gap-4 mb-2">
+                    <div>
+                      <h3 className="font-semibold text-lg text-slate-100">{post.title}</h3>
+                      <p className="text-xs text-slate-500">
+                        Author: {post.author?.profile?.firstName} {post.author?.profile?.lastName}
+                      </p>
+                    </div>
+                    <button
+                      onClick={async () => {
+                        const { unhidePost } = await import("@/app/admin/actions");
+                        await unhidePost(post.id);
+                      }}
+                      className="px-4 py-2 text-sm font-medium rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors"
+                    >
+                      Restore Post
+                    </button>
+                  </div>
+                  <p className="text-sm text-slate-400 leading-relaxed mb-4 line-clamp-2">
+                    {post.content}
+                  </p>
+                  <div className="mt-auto text-xs text-slate-500">
+                    Type: {post.type} | Hidden On: {new Date(post.updatedAt || post.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         )}
       </div>

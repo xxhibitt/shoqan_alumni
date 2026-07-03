@@ -34,9 +34,14 @@ export async function GET(req: Request) {
 
     const posts = await prisma.post.findMany({
       where: {
-        OR: [
-          { title: { contains: q, mode: 'insensitive' } },
-          { content: { contains: q, mode: 'insensitive' } }
+        AND: [
+          { isHidden: false },
+          {
+            OR: [
+              { title: { contains: q, mode: 'insensitive' } },
+              { content: { contains: q, mode: 'insensitive' } }
+            ]
+          }
         ]
       },
       take: 5,
