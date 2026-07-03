@@ -69,7 +69,7 @@ export function ExploreFeed({ posts, isAdmin }: { posts: any[], isAdmin?: boolea
                 </div>
                 <div className="min-w-0 flex-1">
                   <h4 className="font-bold text-white text-sm truncate">
-                    {post.author?.profile?.firstName} {post.author?.profile?.lastName}
+                    {post.author?.profile?.firstName ? `${post.author.profile.firstName} ${post.author.profile.lastName}` : "Unknown User"}
                   </h4>
                   <p className="text-xs text-white/50 truncate">
                     {post.author?.profile?.university?.name || "Admin"}

@@ -17,6 +17,13 @@ export default async function ExplorePage() {
       isArchived: false,
       author: { status: "APPROVED" }
     },
+    include: {
+      author: {
+        include: {
+          profile: true
+        }
+      }
+    },
     orderBy: { createdAt: "desc" }
   });
 
