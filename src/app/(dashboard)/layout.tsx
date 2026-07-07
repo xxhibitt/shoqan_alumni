@@ -24,6 +24,10 @@ export default async function DashboardLayout({
   const headersList = await headers();
   const invokePath = headersList.get("x-invoke-path") || "";
 
+  if (!user) {
+    redirect("/onboarding");
+  }
+
   // Bulletproof checks for NEW or null status
   if ((!user?.status || user.status === "NEW") && !invokePath.includes("/onboarding")) {
     redirect("/onboarding");
