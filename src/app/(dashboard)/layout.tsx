@@ -21,20 +21,24 @@ export default async function DashboardLayout({
     select: { status: true },
   });
 
-  // Bulletproof checks for NEW or null status
-  if (!user?.status || user.status === "NEW") {
-    redirect("/onboarding");
-  }
-
   const headersList = await headers();
   const invokePath = headersList.get("x-invoke-path") || "";
 
-  if (user.status === "PENDING") {
+  // Bulletproof checks for NEW or null status
+  if ((!user?.status || user.status === "NEW") && !invokePath.includes("/onboarding")) {
+    redirect("/onboarding");
+  }
+
+  if (user.status === "PENDING" && !invokePath.includes("/pending")) {
     redirect("/pending");
   }
 
   if (user.status === "REJECTED" && !invokePath.includes("/onboarding") && !invokePath.includes("/pending")) {
     redirect("/pending");
+  }
+
+  if (user.status === "APPROVED" && (invokePath.includes("/onboarding") || invokePath.includes("/pending"))) {
+    redirect("/feed");
   }
 
   return (

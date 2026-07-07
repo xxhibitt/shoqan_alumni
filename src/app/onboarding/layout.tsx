@@ -19,8 +19,12 @@ export default async function OnboardingLayout({
     select: { status: true },
   });
 
-  if (user?.status === "PENDING" || user?.status === "APPROVED") {
+  if (user?.status === "PENDING") {
     redirect("/pending");
+  }
+
+  if (user?.status === "APPROVED") {
+    redirect("/feed");
   }
 
   return <>{children}</>;

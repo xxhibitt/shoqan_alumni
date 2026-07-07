@@ -47,7 +47,7 @@ export async function middleware(req: NextRequest) {
 
   // Strict Status Gating (Admins bypass)
   if (role !== "ADMIN") {
-    if (status === "NEW" && !isOnboardingPage) {
+    if (status === "NEW" && !isOnboardingPage && !isPendingPage) {
       return NextResponse.redirect(new URL("/onboarding", req.url));
     }
     if (status === "PENDING" && !isPendingPage && !isOnboardingPage) {
